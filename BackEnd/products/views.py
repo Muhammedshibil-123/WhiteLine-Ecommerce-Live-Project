@@ -3,10 +3,9 @@ from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics,status, permissions
 from rest_framework.views import APIView
-from .models import Product,ProductSize,ProductImage,ProductReview
+from .models import Product,ProductSize,ProductImage,ProductReview,ProductReviewImage
 from .serializers import (
     AdminProductReviewSerializer,
-    AdminProductReviewWriteSerializer,
     ProductDetailSerializer,
     ProductListSerializer,
     ProductReviewSerializer,
@@ -17,7 +16,6 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .imgbb import ImgBBUploadError, upload_uploaded_file
-from users_app.models import CustomUser
 from orders.models import OrderItem
 
 
@@ -26,10 +24,31 @@ def get_product_queryset():
         'sizes',
         'extra_images',
         'reviews__user',
+        'reviews__images',
     ).annotate(
         approved_rating_average=Avg('reviews__rating', filter=Q(reviews__status='approved')),
         approved_rating_count=Count('reviews', filter=Q(reviews__status='approved')),
     )
+
+
+def get_request_list(request, key):
+    if hasattr(request.data, 'getlist'):
+        return request.data.getlist(key)
+
+    value = request.data.get(key)
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def parse_request_bool(value):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 class IsAdminRole(permissions.BasePermission):
@@ -152,6 +171,7 @@ class ProductStockView(APIView):
 
 class ProductReviewListCreateView(APIView):
     permission_classes = [AllowAny]
+    max_review_images = 4
 
     def get(self, request, id):
         product = get_object_or_404(get_product_queryset(), id=id)
@@ -183,16 +203,57 @@ class ProductReviewListCreateView(APIView):
         if not has_delivered_order:
             raise PermissionDenied('You can review a product only after a delivered order.')
 
-        review, _ = ProductReview.objects.update_or_create(
-            product=product,
-            user=request.user,
-            defaults={
-                'rating': serializer.validated_data['rating'],
-                'title': serializer.validated_data.get('title', ''),
-                'comment': serializer.validated_data.get('comment', ''),
-                'status': 'approved',
-            },
-        )
+        review_images = request.FILES.getlist('images')
+        sync_images = parse_request_bool(request.data.get('sync_images'))
+        retain_image_ids_raw = get_request_list(request, 'retain_image_ids')
+
+        try:
+            retain_image_ids = {int(image_id) for image_id in retain_image_ids_raw if str(image_id).strip()}
+        except (TypeError, ValueError):
+            raise ValidationError({'retain_image_ids': ['Invalid review image id received.']})
+
+        try:
+            with transaction.atomic():
+                review, _ = ProductReview.objects.update_or_create(
+                    product=product,
+                    user=request.user,
+                    defaults={
+                        'rating': serializer.validated_data['rating'],
+                        'title': serializer.validated_data.get('title', ''),
+                        'comment': serializer.validated_data.get('comment', ''),
+                        'status': 'approved',
+                    },
+                )
+
+                existing_images = review.images.all()
+                existing_image_ids = set(existing_images.values_list('id', flat=True))
+
+                if retain_image_ids - existing_image_ids:
+                    raise ValidationError({'retain_image_ids': ['One or more review images are invalid.']})
+
+                if sync_images:
+                    total_images = len(retain_image_ids) + len(review_images)
+                    if total_images > self.max_review_images:
+                        raise ValidationError(
+                            {'images': [f'You can upload up to {self.max_review_images} review images.']}
+                        )
+
+                    if retain_image_ids:
+                        existing_images.exclude(id__in=retain_image_ids).delete()
+                    else:
+                        existing_images.delete()
+                elif existing_images.count() + len(review_images) > self.max_review_images:
+                    raise ValidationError(
+                        {'images': [f'You can upload up to {self.max_review_images} review images.']}
+                    )
+
+                for image_file in review_images:
+                    ProductReviewImage.objects.create(
+                        review=review,
+                        image=upload_uploaded_file(image_file),
+                    )
+        except ImgBBUploadError as exc:
+            raise ValidationError({'images': [str(exc)]})
 
         refreshed_product = get_product_queryset().get(id=id)
         return Response(ProductDetailSerializer(refreshed_product, context={'request': request}).data)
@@ -205,50 +266,9 @@ class AdminReviewListCreateView(APIView):
         reviews = ProductReview.objects.select_related('product', 'user').all()
         return Response(AdminProductReviewSerializer(reviews, many=True).data)
 
-    def post(self, request):
-        serializer = AdminProductReviewWriteSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        product = get_object_or_404(Product, id=serializer.validated_data['product_id'])
-        user = get_object_or_404(CustomUser, id=serializer.validated_data['user_id'])
-
-        review, _ = ProductReview.objects.update_or_create(
-            product=product,
-            user=user,
-            defaults={
-                'rating': serializer.validated_data['rating'],
-                'title': serializer.validated_data.get('title', ''),
-                'comment': serializer.validated_data.get('comment', ''),
-                'status': serializer.validated_data.get('status', 'approved'),
-            },
-        )
-
-        return Response(AdminProductReviewSerializer(review).data, status=status.HTTP_201_CREATED)
-
 
 class AdminReviewDetailView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
-
-    def patch(self, request, review_id):
-        review = get_object_or_404(ProductReview.objects.select_related('product', 'user'), id=review_id)
-
-        serializer = AdminProductReviewWriteSerializer(data={
-            'product_id': review.product_id,
-            'user_id': review.user_id,
-            'rating': request.data.get('rating', review.rating),
-            'title': request.data.get('title', review.title),
-            'comment': request.data.get('comment', review.comment),
-            'status': request.data.get('status', review.status),
-        })
-        serializer.is_valid(raise_exception=True)
-
-        review.rating = serializer.validated_data['rating']
-        review.title = serializer.validated_data.get('title', '')
-        review.comment = serializer.validated_data.get('comment', '')
-        review.status = serializer.validated_data.get('status', review.status)
-        review.save()
-
-        return Response(AdminProductReviewSerializer(review).data)
 
     def delete(self, request, review_id):
         review = get_object_or_404(ProductReview, id=review_id)

@@ -83,3 +83,14 @@ class ProductReview(models.Model):
 
     def __str__(self):
         return f"{self.product.title} review by {self.user.username}"
+
+
+class ProductReviewImage(models.Model):
+    review = models.ForeignKey(ProductReview, related_name='images', on_delete=models.CASCADE)
+    image = models.URLField(max_length=1000, blank=True, null=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Image for review #{self.review_id}"

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -15,6 +15,8 @@ const defaultReviewForm = {
     comment: '',
 }
 
+const MAX_REVIEW_IMAGES = 4
+
 function Detailsproducts() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -25,7 +27,10 @@ function Detailsproducts() {
     const [loading, setLoading] = useState(true)
     const [activeImg, setActiveImg] = useState('')
     const [reviewForm, setReviewForm] = useState(defaultReviewForm)
+    const [reviewRetainedImages, setReviewRetainedImages] = useState([])
+    const [newReviewImages, setNewReviewImages] = useState([])
     const [submittingReview, setSubmittingReview] = useState(false)
+    const newReviewImagesRef = useRef([])
 
     const token = localStorage.getItem('access_token')
 
@@ -50,6 +55,23 @@ function Detailsproducts() {
 
     const BASE_URL = getBaseUrl()
 
+    useEffect(() => {
+        newReviewImagesRef.current = newReviewImages
+    }, [newReviewImages])
+
+    useEffect(() => (
+        () => {
+            newReviewImagesRef.current.forEach((image) => URL.revokeObjectURL(image.preview))
+        }
+    ), [])
+
+    const clearPendingReviewImages = () => {
+        setNewReviewImages((prev) => {
+            prev.forEach((image) => URL.revokeObjectURL(image.preview))
+            return []
+        })
+    }
+
     const syncReviewForm = (productData) => {
         if (productData?.user_review) {
             setReviewForm({
@@ -57,9 +79,13 @@ function Detailsproducts() {
                 title: productData.user_review.title || '',
                 comment: productData.user_review.comment || '',
             })
+            setReviewRetainedImages(productData.user_review.images || [])
+            clearPendingReviewImages()
             return
         }
 
+        setReviewRetainedImages([])
+        clearPendingReviewImages()
         setReviewForm(defaultReviewForm)
     }
 
@@ -112,9 +138,23 @@ function Detailsproducts() {
         setSubmittingReview(true)
 
         try {
+            const formData = new FormData()
+            formData.append('rating', reviewForm.rating)
+            formData.append('title', reviewForm.title)
+            formData.append('comment', reviewForm.comment)
+            formData.append('sync_images', 'true')
+
+            reviewRetainedImages.forEach((image) => {
+                formData.append('retain_image_ids', image.id)
+            })
+
+            newReviewImages.forEach(({ file }) => {
+                formData.append('images', file)
+            })
+
             const res = await axios.post(
                 `${API_URL}/products/${id}/reviews/`,
-                reviewForm,
+                formData,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -134,6 +174,41 @@ function Detailsproducts() {
         }
     }
 
+    const handleReviewImageChange = (e) => {
+        const files = Array.from(e.target.files || [])
+        if (!files.length) return
+
+        const currentImageCount = reviewRetainedImages.length + newReviewImages.length
+        if (currentImageCount + files.length > MAX_REVIEW_IMAGES) {
+            toast.error(`You can upload up to ${MAX_REVIEW_IMAGES} review images.`)
+            e.target.value = ''
+            return
+        }
+
+        const nextImages = files.map((file) => ({
+            file,
+            name: file.name,
+            preview: URL.createObjectURL(file),
+        }))
+
+        setNewReviewImages((prev) => [...prev, ...nextImages])
+        e.target.value = ''
+    }
+
+    const removeRetainedReviewImage = (imageId) => {
+        setReviewRetainedImages((prev) => prev.filter((image) => image.id !== imageId))
+    }
+
+    const removePendingReviewImage = (preview) => {
+        setNewReviewImages((prev) => {
+            const imageToRemove = prev.find((image) => image.preview === preview)
+            if (imageToRemove) {
+                URL.revokeObjectURL(imageToRemove.preview)
+            }
+            return prev.filter((image) => image.preview !== preview)
+        })
+    }
+
     const renderStars = (rating, extraClass = '') => (
         <div className={`rating-stars ${extraClass}`.trim()}>
             {[1, 2, 3, 4, 5].map((star) => (
@@ -141,6 +216,25 @@ function Detailsproducts() {
                     &#9733;
                 </span>
             ))}
+        </div>
+    )
+
+    const renderInteractiveStars = (rating, onChange) => (
+        <div className="review-rating-selector" role="radiogroup" aria-label="Select your review rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                    type="button"
+                    key={star}
+                    role="radio"
+                    aria-checked={rating === star}
+                    aria-label={`${star} star${star === 1 ? '' : 's'}`}
+                    className={`review-star-btn ${star <= rating ? 'active' : ''}`}
+                    onClick={() => onChange(star)}
+                >
+                    &#9733;
+                </button>
+            ))}
+            <span className="review-rating-label">{rating} out of 5</span>
         </div>
     )
 
@@ -367,18 +461,10 @@ function Detailsproducts() {
 
                         {token && canWriteReview && (
                             <form className="review-form" onSubmit={handleReviewSubmit}>
-                                <div className="review-rating-selector">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            type="button"
-                                            key={star}
-                                            className={`rating-chip ${reviewForm.rating === star ? 'active' : ''}`}
-                                            onClick={() => setReviewForm((prev) => ({ ...prev, rating: star }))}
-                                        >
-                                            {star} Star{star === 1 ? '' : 's'}
-                                        </button>
-                                    ))}
-                                </div>
+                                {renderInteractiveStars(
+                                    reviewForm.rating,
+                                    (rating) => setReviewForm((prev) => ({ ...prev, rating }))
+                                )}
 
                                 <input
                                     type="text"
@@ -395,6 +481,53 @@ function Detailsproducts() {
                                     value={reviewForm.comment}
                                     onChange={(e) => setReviewForm((prev) => ({ ...prev, comment: e.target.value }))}
                                 />
+
+                                <div className="review-images-field">
+                                    <div className="review-images-copy">
+                                        <strong>Add Photos</strong>
+                                        <span>Up to {MAX_REVIEW_IMAGES} images</span>
+                                    </div>
+
+                                    <label className="review-image-picker">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleReviewImageChange}
+                                        />
+                                        Upload review images
+                                    </label>
+
+                                    {(reviewRetainedImages.length > 0 || newReviewImages.length > 0) && (
+                                        <div className="review-image-preview-grid">
+                                            {reviewRetainedImages.map((image) => (
+                                                <div key={image.id} className="review-image-preview">
+                                                    <img src={getImageUrl(image.image)} alt="Review upload" />
+                                                    <button
+                                                        type="button"
+                                                        className="review-image-remove-btn"
+                                                        onClick={() => removeRetainedReviewImage(image.id)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {newReviewImages.map((image) => (
+                                                <div key={image.preview} className="review-image-preview">
+                                                    <img src={image.preview} alt={image.name} />
+                                                    <button
+                                                        type="button"
+                                                        className="review-image-remove-btn"
+                                                        onClick={() => removePendingReviewImage(image.preview)}
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
                                 <button className="review-submit-btn" type="submit" disabled={submittingReview}>
                                     {submittingReview ? 'SAVING...' : product.user_review ? 'UPDATE REVIEW' : 'SUBMIT REVIEW'}
@@ -419,6 +552,18 @@ function Detailsproducts() {
                                         </div>
                                         {review.title && <strong>{review.title}</strong>}
                                         <p>{review.comment || 'No written comment added.'}</p>
+                                        {review.images?.length > 0 && (
+                                            <div className="review-card-image-grid">
+                                                {review.images.map((image) => (
+                                                    <img
+                                                        key={image.id}
+                                                        src={getImageUrl(image.image)}
+                                                        alt={`${review.user_name} review`}
+                                                        className="review-card-image"
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                     </article>
                                 ))}
                             </div>

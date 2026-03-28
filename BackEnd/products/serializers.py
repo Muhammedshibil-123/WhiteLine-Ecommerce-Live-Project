@@ -2,7 +2,7 @@ from django.db.models import Avg, Count
 from rest_framework import serializers
 
 from orders.models import OrderItem
-from .models import Product, ProductSize, ProductImage, ProductReview
+from .models import Product, ProductSize, ProductImage, ProductReview, ProductReviewImage
 
 class ProductSizeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,10 +17,20 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class ProductReviewSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.username', read_only=True)
     created_at = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductReview
-        fields = ['id', 'user_name', 'rating', 'title', 'comment', 'status', 'created_at']
+        fields = ['id', 'user_name', 'rating', 'title', 'comment', 'status', 'created_at', 'images']
+
+    def get_images(self, obj):
+        return ProductReviewImageSerializer(obj.images.all(), many=True).data
+
+
+class ProductReviewImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductReviewImage
+        fields = ['id', 'image']
 
 
 class ProductReviewWriteSerializer(serializers.Serializer):
@@ -33,6 +43,7 @@ class AdminProductReviewSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.username', read_only=True)
     product_title = serializers.CharField(source='product.title', read_only=True)
     created_at = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    images = ProductReviewImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductReview
@@ -47,17 +58,9 @@ class AdminProductReviewSerializer(serializers.ModelSerializer):
             'comment',
             'status',
             'created_at',
+            'images',
         ]
         read_only_fields = ['id', 'product_title', 'user_name', 'created_at']
-
-
-class AdminProductReviewWriteSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField()
-    user_id = serializers.IntegerField()
-    rating = serializers.IntegerField(min_value=1, max_value=5)
-    title = serializers.CharField(max_length=120, allow_blank=True, required=False)
-    comment = serializers.CharField(allow_blank=True, required=False)
-    status = serializers.ChoiceField(choices=ProductReview.STATUS_CHOICES, required=False)
 
 
 class ProductListSerializer(serializers.ModelSerializer):
