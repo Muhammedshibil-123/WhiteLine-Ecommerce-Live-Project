@@ -25,7 +25,7 @@ function Products() {
   const [newProduct, setNewProducts] = useState({
     title: '', product_code: '', color: '', brand: '',
     category: '', fit: '', style: '', description: '',
-    price: '', mrp: '', status: 'active'
+    price: '', mrp: '', bulk_order_min_qty: '', bulk_order_price: '', status: 'active'
   })
   
   const [imageFile, setImageFile] = useState(null)
@@ -131,12 +131,19 @@ function Products() {
         setNewProducts({
           title: '', product_code: '', color: '', brand: '', 
           category: '', fit: '', style: '', description: '', 
-          price: '', mrp: '', status: 'active'
+          price: '', mrp: '', bulk_order_min_qty: '', bulk_order_price: '', status: 'active'
         })
         setImageFile(null)
         setGalleryFiles([])
       })
-      .catch((err) => alert("Error adding product."))
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.bulk_order_price?.[0] ||
+          err.response?.data?.bulk_order_min_qty?.[0] ||
+          err.response?.data?.price?.[0] ||
+          "Error adding product."
+        alert(errorMessage)
+      })
   }
 
   function toggleProductStatus(id) {
@@ -152,7 +159,12 @@ function Products() {
   }
 
   function handleEditClick(product) {
-    setCurrentProduct(product)
+    setCurrentProduct({
+      ...product,
+      mrp: product.mrp || '',
+      bulk_order_min_qty: product.bulk_order_min_qty || '',
+      bulk_order_price: product.bulk_order_price || '',
+    })
     setpopEdit(true)
     setImageFile(null)
     setGalleryFiles([])
@@ -177,6 +189,8 @@ function Products() {
     formData.append('description', currentProduct.description);
     formData.append('price', currentProduct.price);
     if(currentProduct.mrp) formData.append('mrp', currentProduct.mrp);
+    formData.append('bulk_order_min_qty', currentProduct.bulk_order_min_qty || '');
+    formData.append('bulk_order_price', currentProduct.bulk_order_price || '');
     if (imageFile) formData.append('image', imageFile);
 
     galleryFiles.forEach((file) => {
@@ -193,7 +207,15 @@ function Products() {
         setImageFile(null)
         setGalleryFiles([])
       })
-      .catch((err) => console.error(err))
+      .catch((err) => {
+        console.error(err)
+        const errorMessage =
+          err.response?.data?.bulk_order_price?.[0] ||
+          err.response?.data?.bulk_order_min_qty?.[0] ||
+          err.response?.data?.price?.[0] ||
+          "Unable to update product."
+        alert(errorMessage)
+      })
   }
 
   function removeproduct(id) {
@@ -250,6 +272,12 @@ function Products() {
         </div>
     )
   }
+
+  const hasBulkOffer = (product) => (
+    product.bulk_order_min_qty &&
+    product.bulk_order_price &&
+    Number(product.bulk_order_price) < Number(product.price)
+  )
 
   return (
     <div className='products-page-wrapper'>
@@ -310,7 +338,14 @@ function Products() {
                 <p>{product.brand} | {product.color} | {product.category}</p>
               </span>
               
-              <span className='col-price'>₹{product.price}</span>
+              <span className='col-price'>
+                Rs.{product.price}
+                {hasBulkOffer(product) && (
+                  <small style={{ display: 'block', marginTop: '4px', color: '#666', fontSize: '11px' }}>
+                    {product.bulk_order_min_qty}+ pcs: Rs.{product.bulk_order_price}
+                  </small>
+                )}
+              </span>
 
               <span className='col-stock'>
                  {renderStockGrid(product.sizes)}
@@ -350,6 +385,8 @@ function Products() {
                     <div className="input-group"><label>Style</label><select name='style' value={newProduct.style} onChange={handleInputChange} required><option value="">Select</option>{PRODUCT_STYLE_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
                     <div className="input-group"><label>Price</label><input type="number" name='price' value={newProduct.price} onChange={handleInputChange} required /></div>
                     <div className="input-group"><label>MRP</label><input type="number" name='mrp' value={newProduct.mrp} onChange={handleInputChange} /></div>
+                    <div className="input-group"><label>Bulk Qty Trigger</label><input type="number" min="2" name='bulk_order_min_qty' value={newProduct.bulk_order_min_qty} onChange={handleInputChange} placeholder='Example: 10' /></div>
+                    <div className="input-group"><label>Bulk Unit Price</label><input type="number" min="0" step="0.01" name='bulk_order_price' value={newProduct.bulk_order_price} onChange={handleInputChange} placeholder='Lower than regular price' /></div>
                     <div className="input-group full-width"><label>Main Image</label><input type="file" accept="image/*" onChange={handleImageChange} required /></div>
                     <div className="input-group full-width">
                         <label>Product Gallery</label>
@@ -387,6 +424,8 @@ function Products() {
                      <div className="input-group"><label>Style</label><select name='style' value={currentProduct.style} onChange={handleInputChangeEdit} required>{PRODUCT_STYLE_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
                      <div className="input-group"><label>Price</label><input type="number" name='price' value={currentProduct.price} onChange={handleInputChangeEdit} required /></div>
                      <div className="input-group"><label>MRP</label><input type="number" name='mrp' value={currentProduct.mrp} onChange={handleInputChangeEdit} /></div>
+                     <div className="input-group"><label>Bulk Qty Trigger</label><input type="number" min="2" name='bulk_order_min_qty' value={currentProduct.bulk_order_min_qty} onChange={handleInputChangeEdit} placeholder='Example: 10' /></div>
+                     <div className="input-group"><label>Bulk Unit Price</label><input type="number" min="0" step="0.01" name='bulk_order_price' value={currentProduct.bulk_order_price} onChange={handleInputChangeEdit} placeholder='Lower than regular price' /></div>
                      <div className="input-group full-width"><label>Update Main Image</label><input type="file" accept="image/*" onChange={handleImageChange} /></div>
                      <div className="input-group full-width">
                         <label>Add New Gallery Images</label>

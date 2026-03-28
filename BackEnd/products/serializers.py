@@ -74,6 +74,32 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+    def validate(self, attrs):
+        instance = getattr(self, 'instance', None)
+        price = attrs.get('price', getattr(instance, 'price', None))
+        bulk_order_min_qty = attrs.get('bulk_order_min_qty', getattr(instance, 'bulk_order_min_qty', None))
+        bulk_order_price = attrs.get('bulk_order_price', getattr(instance, 'bulk_order_price', None))
+
+        if bulk_order_min_qty is None and bulk_order_price is None:
+            return attrs
+
+        if bulk_order_min_qty in (None, '') or bulk_order_price in (None, ''):
+            raise serializers.ValidationError(
+                {'bulk_order_price': 'Bulk quantity and bulk price are both required to enable bulk pricing.'}
+            )
+
+        if int(bulk_order_min_qty) < 2:
+            raise serializers.ValidationError(
+                {'bulk_order_min_qty': 'Bulk quantity must be at least 2.'}
+            )
+
+        if price is not None and bulk_order_price >= price:
+            raise serializers.ValidationError(
+                {'bulk_order_price': 'Bulk price must be lower than the regular product price.'}
+            )
+
+        return attrs
+
     def get_available_colors(self, obj):
         variants = Product.objects.filter(product_code=obj.product_code,status='active').exclude(id=obj.id)
         return [

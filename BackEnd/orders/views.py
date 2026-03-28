@@ -1,13 +1,12 @@
-from django.shortcuts import render
 from rest_framework import generics, status, views
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .models import Cart, CartItem,Wishlist,Order,OrderItem,OrderAddress
 from .serializers import CartSerializer, CartItemSerializer,WishlistSerializer,OrderSerializer,AdminOrderSerializer
 from products.models import Product, ProductSize
+from .pricing import calculate_cart_totals, get_cart_item_pricing
 from django.conf import settings
 from rest_framework.views import APIView
-from products.models import Product, ProductSize
 from django.db.models import Q
 
 try:
@@ -48,6 +47,13 @@ class AddToCartView(views.APIView):
 
         cart, created = Cart.objects.get_or_create(user=request.user)
 
+        product_size = None
+        if size:
+            try:
+                product_size = ProductSize.objects.get(product=product, size=size)
+            except ProductSize.DoesNotExist:
+                return Response({"error": "Invalid size"}, status=status.HTTP_400_BAD_REQUEST)
+
         cart_item, item_created = CartItem.objects.get_or_create(
             cart=cart, 
             product=product, 
@@ -55,7 +61,16 @@ class AddToCartView(views.APIView):
             defaults={'quantity': 1}
         )
 
+        if item_created and product_size and product_size.stock < 1:
+            cart_item.delete()
+            return Response({"error": "This size is out of stock"}, status=status.HTTP_400_BAD_REQUEST)
+
         if not item_created:
+            if product_size and cart_item.quantity >= product_size.stock:
+                return Response(
+                    {"error": f"Only {product_size.stock} items available in this size"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             cart_item.quantity += 1
             cart_item.save()
 
@@ -151,9 +166,23 @@ class CreateOrderView(APIView):
 
     def post(self, request):
         user = request.user
-        amount = request.data.get('total_amount')
         address_data = request.data.get('delivery_address', {})
         payment_method = request.data.get('payment_method', 'online') 
+        cart, created = Cart.objects.get_or_create(user=user)
+        cart_items = list(cart.items.select_related('product').all())
+
+        if not cart_items:
+            return Response({"error": "Your cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        for item in cart_items:
+            if item.product.sizes.exists() and not item.size:
+                return Response(
+                    {"error": f"Please select a size for {item.product.title} before checkout."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        totals = calculate_cart_totals(cart_items)
+        amount = totals['grand_total']
 
         order_address = OrderAddress.objects.create(
             name=address_data.get('name'),
@@ -173,16 +202,14 @@ class CreateOrderView(APIView):
                 status='Order Placed'
             )
 
-            cart = Cart.objects.get(user=user)
-            cart_items = cart.items.all()
-
             for item in cart_items:
+                item_pricing = get_cart_item_pricing(item)
                 OrderItem.objects.create(
                     order=order,
                     product=item.product,
                     quantity=item.quantity,
                     size=item.size,
-                    price=item.product.price
+                    price=item_pricing['unit_price']
                 )
                
                 if item.size:
@@ -208,7 +235,7 @@ class CreateOrderView(APIView):
             except RuntimeError as exc:
                 return Response({"error": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             data = {
-                "amount": int(float(amount) * 100),
+                "amount": int(amount * 100),
                 "currency": "INR",
                 "payment_capture": "1"
             }
@@ -231,6 +258,8 @@ class CreateOrderView(APIView):
             }, status=status.HTTP_201_CREATED)
 
 class VerifyPaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         data = request.data
         try:
@@ -250,15 +279,16 @@ class VerifyPaymentView(APIView):
             order.save()
    
             user_cart = Cart.objects.get(user=order.user)
-            cart_items = user_cart.items.all()
+            cart_items = user_cart.items.select_related('product').all()
 
             for item in cart_items:
+                item_pricing = get_cart_item_pricing(item)
                 OrderItem.objects.create(
                     order=order,
                     product=item.product,
                     quantity=item.quantity,
                     size=item.size,
-                    price=item.product.price
+                    price=item_pricing['unit_price']
                 )
 
                 if item.size: 

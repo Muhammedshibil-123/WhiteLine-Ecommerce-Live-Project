@@ -1,24 +1,31 @@
 from django.contrib import admin
+
 from .models import Product, ProductImage, ProductReview, ProductSize
 
 
 class ProductSizeInline(admin.TabularInline):
     model = ProductSize
-    extra = 1  
+    extra = 1
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'fit', 'style', 'color', 'price', 'brand', 'total_stock')
+    list_display = ('title', 'category', 'fit', 'style', 'color', 'price', 'bulk_offer', 'brand', 'total_stock')
     list_filter = ('brand', 'category', 'fit', 'style', 'color')
     search_fields = ('title', 'product_code', 'brand', 'color', 'category', 'fit', 'style')
-
     inlines = [ProductSizeInline, ProductImageInline]
 
     def total_stock(self, obj):
         return sum(item.stock for item in obj.sizes.all())
+
+    def bulk_offer(self, obj):
+        if obj.has_bulk_offer():
+            return f'{obj.bulk_order_min_qty}+ @ Rs.{obj.bulk_order_price}'
+        return '-'
 
 
 class ProductReviewAdmin(admin.ModelAdmin):

@@ -243,6 +243,19 @@ function Detailsproducts() {
 
     const discount = product.mrp ? Math.round(((product.mrp - product.price) / product.mrp) * 100) : 0
     const averageRating = Number(product.rating_average || 0).toFixed(1)
+    const hasBulkOffer = (
+        product.bulk_order_min_qty &&
+        product.bulk_order_price &&
+        Number(product.bulk_order_price) < Number(product.price)
+    )
+    const formatCurrency = (value) => (
+        new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        }).format(Number(value || 0))
+    )
 
     const getImageUrl = (img) => {
         if (!img) return 'https://via.placeholder.com/300'
@@ -329,6 +342,11 @@ function Detailsproducts() {
                     <div className='price-block'>
                         <span className='current-price'>Rs.{product.price}</span>
                         {product.mrp && <span className='original-price'>MRP Rs.{product.mrp}</span>}
+                        {hasBulkOffer && (
+                            <span className='tax-note'>
+                                Bulk price {formatCurrency(product.bulk_order_price)} each on {product.bulk_order_min_qty}+ pcs
+                            </span>
+                        )}
                         <span className='tax-note'>Inc. of all taxes</span>
                     </div>
 

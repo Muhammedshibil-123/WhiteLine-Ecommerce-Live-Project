@@ -61,6 +61,9 @@ class ProductImageUploadMixin:
 
     def _get_serializer_data(self, request):
         data = request.data.copy()
+        for field_name in ('bulk_order_min_qty', 'bulk_order_price'):
+            if data.get(field_name) == '':
+                data[field_name] = None
 
         for field_name in self.upload_fields:
             data.pop(field_name, None)
