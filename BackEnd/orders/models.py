@@ -27,7 +27,44 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"Wishlist of {self.user.username}"
-    
+
+
+class DeliverySettings(models.Model):
+    warehouse_pincode = models.CharField(max_length=10, blank=True)
+    rate_per_km = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Delivery Settings'
+        verbose_name_plural = 'Delivery Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        settings_obj, _ = cls.objects.get_or_create(pk=1, defaults={'rate_per_km': 0})
+        return settings_obj
+
+    def __str__(self):
+        return 'Delivery Settings'
+
+
+class PincodeLocationCache(models.Model):
+    pincode = models.CharField(max_length=10, unique=True)
+    latitude = models.DecimalField(max_digits=10, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)
+    display_name = models.CharField(max_length=255, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['pincode']
+
+    def __str__(self):
+        return self.pincode
+
+
 class OrderAddress(models.Model):
     name = models.CharField(max_length=100)
     mobile = models.CharField(max_length=15)
@@ -45,6 +82,8 @@ class Order(models.Model):
     delivery_address = models.OneToOneField(OrderAddress, on_delete=models.CASCADE, related_name='order')
     
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    delivery_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    delivery_distance_km = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_status = models.CharField(
         max_length=20, 
         choices=[('Pending', 'Pending'), ('Success', 'Success'), ('Failed', 'Failed')],

@@ -80,6 +80,12 @@ class ResetPasswordSerializer(serializers.Serializer):
         return data
     
 class AddressSerializer(serializers.ModelSerializer):
+    def validate_pincode(self, value):
+        normalized = ''.join(str(value or '').strip().split())
+        if not normalized.isdigit() or len(normalized) != 6:
+            raise serializers.ValidationError('Pincode must be a valid 6-digit number.')
+        return normalized
+
     class Meta:
         model = Address
         fields = ['id', 'user', 'name', 'mobile', 'pincode', 'address', 'landmark', 'address_type', 'is_default']

@@ -6,6 +6,7 @@ import cart from '../assets/cart.png'
 import search from '../assets/serach.png'
 import whishlist from '../assets/whishlist.png'
 import account from '../assets/account.png'
+import wlLogo from '../assets/wl-logo.png'
 
 import { FaUser, FaUserShield, FaSignOutAlt,FaMapMarkerAlt } from "react-icons/fa";
 
@@ -57,8 +58,9 @@ function Navbar() {
 
 
                 <div className='brand-desktop'>
-                    <NavLink to="/" style={{ textDecoration: 'none' }}>
-                        Xenfit.
+                    <NavLink to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0' }}>
+                        <img src={wlLogo} alt="Whiteline Logo" style={{ height: '52px', objectFit: 'contain', marginLeft: '-6px' }} />
+                        <span style={{ marginLeft: '-2px' }}>HITELINE.</span>
                     </NavLink>
                 </div>
 
@@ -101,8 +103,9 @@ function Navbar() {
 
 
                         <div className='brand-mobile'>
-                            <NavLink to="/" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                Xenfit
+                            <NavLink to="/" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '0' }}>
+                                <img src={wlLogo} alt="Whiteline Logo" style={{ height: '40px', objectFit: 'contain', marginLeft: '-4px' }} />
+                                <span style={{ marginLeft: '-1px' }}>HITELINE.</span>
                             </NavLink>
                         </div>
 

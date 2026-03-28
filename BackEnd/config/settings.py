@@ -221,6 +221,11 @@ IMGBB_API_KEY = os.getenv('IMGBB_API_KEY', '')
 
 RAZOR_KEY_ID = os.getenv('RAZOR_KEY_ID', '')
 RAZOR_KEY_SECRET = os.getenv('RAZOR_KEY_SECRET', '')
+DELIVERY_GEO_USER_AGENT = os.getenv(
+    'DELIVERY_GEO_USER_AGENT',
+    'Whiteline/1.0 (delivery-distance-calculation)'
+)
+DELIVERY_GEO_EMAIL = os.getenv('DELIVERY_GEO_EMAIL', EMAIL_HOST_USER)
 
 
 

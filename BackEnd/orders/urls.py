@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     CartView, AddToCartView, UpdateCartItemView,WishlistView,ToggleWishlistView,
-    CreateOrderView,VerifyPaymentView,OrderListView,AdminOrderListView,AdminOrderUpdateView
+    CreateOrderView,VerifyPaymentView,OrderListView,AdminOrderListView,AdminOrderUpdateView,
+    DeliveryEstimateView, DeliverySettingsView
 )
 
 urlpatterns = [
@@ -10,6 +11,8 @@ urlpatterns = [
     path('cart/item/<int:pk>/', UpdateCartItemView.as_view(), name='update-cart-item'),
     path('wishlist/', WishlistView.as_view(), name='wishlist'),
     path('wishlist/toggle/', ToggleWishlistView.as_view(), name='toggle-wishlist'),
+    path('delivery-estimate/', DeliveryEstimateView.as_view(), name='delivery-estimate'),
+    path('delivery-settings/', DeliverySettingsView.as_view(), name='delivery-settings'),
     path('place-order/', CreateOrderView.as_view(), name='place-order'),
     path('verify-payment/', VerifyPaymentView.as_view(), name='verify-payment'),
     path('my-orders/', OrderListView.as_view(), name='my-orders'),

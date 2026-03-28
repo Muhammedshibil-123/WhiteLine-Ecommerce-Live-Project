@@ -35,6 +35,15 @@ function Orders() {
       })
   }
 
+  const formatCurrency = (value) => (
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0))
+  )
+
   useEffect(() => {
     fetchOrders()
   }, [])
@@ -168,7 +177,14 @@ function Orders() {
                       </div>
                     </td>
 
-                    <td className="price-col">₹{order.total_amount}</td>
+                    <td className="price-col">
+                      <div>{formatCurrency(order.total_amount)}</div>
+                      {Number(order.delivery_charge || 0) > 0 && (
+                        <small style={{ display: 'block', marginTop: '4px', color: '#666' }}>
+                          Delivery {formatCurrency(order.delivery_charge)} / {order.delivery_distance_km} km
+                        </small>
+                      )}
+                    </td>
                     
                     <td className="date-col">{order.orderDate || 'N/A'}</td>
 

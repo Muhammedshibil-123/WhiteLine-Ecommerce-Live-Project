@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiHome, FiUsers, FiBox, FiShoppingCart, FiStar, FiLogOut, FiExternalLink } from 'react-icons/fi'
+import { FiHome, FiUsers, FiBox, FiShoppingCart, FiStar, FiLogOut, FiExternalLink, FiMapPin } from 'react-icons/fi'
 import './sidebar.css'
 
 function Sidebar() {
@@ -68,6 +68,11 @@ function Sidebar() {
                         <motion.div variants={linkVariants}>
                             <NavLink to={'/admin/orders'} className='nav'>
                                 <p><FiShoppingCart className="nav-icon" /> Orders</p>
+                            </NavLink>
+                        </motion.div>
+                        <motion.div variants={linkVariants}>
+                            <NavLink to={'/admin/delivery'} className='nav'>
+                                <p><FiMapPin className="nav-icon" /> Delivery</p>
                             </NavLink>
                         </motion.div>
                         <motion.div variants={linkVariants}>

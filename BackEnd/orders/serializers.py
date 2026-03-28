@@ -1,8 +1,15 @@
 from rest_framework import serializers
-from .models import Cart, CartItem,Wishlist,Order,OrderItem,OrderAddress
+from .models import Cart, CartItem, Wishlist, Order, OrderItem, OrderAddress, DeliverySettings
 from products.models import Product, ProductSize
 from products.serializers import ProductSerializer
 from .pricing import calculate_cart_totals, get_cart_item_pricing
+
+
+def validate_six_digit_pincode(value, field_name='pincode'):
+    normalized = ''.join(str(value or '').strip().split())
+    if not normalized.isdigit() or len(normalized) != 6:
+        raise serializers.ValidationError(f'{field_name.replace("_", " ").title()} must be a valid 6-digit pincode.')
+    return normalized
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
@@ -93,9 +100,27 @@ class WishlistSerializer(serializers.ModelSerializer):
 
 
 class OrderAddressSerializer(serializers.ModelSerializer):
+    def validate_pincode(self, value):
+        return validate_six_digit_pincode(value)
+
     class Meta:
         model = OrderAddress
         fields = ['name', 'mobile', 'pincode', 'address', 'landmark']
+
+
+class DeliverySettingsSerializer(serializers.ModelSerializer):
+    def validate_warehouse_pincode(self, value):
+        return validate_six_digit_pincode(value, 'warehouse_pincode')
+
+    def validate_rate_per_km(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Rate per km cannot be negative.')
+        return value
+
+    class Meta:
+        model = DeliverySettings
+        fields = ['warehouse_pincode', 'rate_per_km', 'updated_at']
+        read_only_fields = ['updated_at']
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_title = serializers.CharField(source='product.title', read_only=True)
@@ -115,7 +140,19 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'total_amount', 'payment_status', 'status', 'provider_order_id', 'delivery_address', 'items', 'orderDate']
+        fields = [
+            'id',
+            'user',
+            'total_amount',
+            'delivery_charge',
+            'delivery_distance_km',
+            'payment_status',
+            'status',
+            'provider_order_id',
+            'delivery_address',
+            'items',
+            'orderDate',
+        ]
 
     def get_payment_status(self, obj):
         if obj.payment_status == 'Pending':
@@ -132,6 +169,6 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'username', 'status', 'total_amount', 'orderDate', 
+            'id', 'username', 'status', 'total_amount', 'delivery_charge', 'delivery_distance_km', 'orderDate', 
             'delivery_address', 'items'
         ]

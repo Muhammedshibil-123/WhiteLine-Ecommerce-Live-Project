@@ -5,21 +5,29 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CartContext } from "../component/cartcouter";
 
-const defaultCartSummary = {
+const defaultPricingSummary = {
   original_subtotal: '0.00',
   subtotal: '0.00',
   bulk_savings: '0.00',
   discount: '0.00',
   gst: '0.00',
   grand_total: '0.00',
+  delivery_charge: '0.00',
+  distance_km: '0.00',
+  rate_per_km: '0.00',
+  warehouse_pincode: '',
+  destination_pincode: '',
+  payable_total: '0.00',
 };
 
 function Checkout() {
   const [cartItems, setCartItems] = useState([]);
-  const [cartSummary, setCartSummary] = useState(defaultCartSummary);
+  const [pricingSummary, setPricingSummary] = useState(defaultPricingSummary);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('online');
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
+  const [deliveryError, setDeliveryError] = useState('');
 
   const navigate = useNavigate();
   const token = localStorage.getItem('access_token');
@@ -52,14 +60,16 @@ function Checkout() {
     axios.get(`${API_URL}/orders/cart/`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
         setCartItems(res.data.items || []);
-        setCartSummary({
+        setPricingSummary((prev) => ({
+          ...prev,
           original_subtotal: res.data.original_subtotal || '0.00',
           subtotal: res.data.subtotal || '0.00',
           bulk_savings: res.data.bulk_savings || '0.00',
           discount: res.data.discount || '0.00',
           gst: res.data.gst || '0.00',
           grand_total: res.data.grand_total || '0.00',
-        });
+          payable_total: res.data.grand_total || '0.00',
+        }));
       })
       .catch((err) => console.error(err));
 
@@ -75,6 +85,35 @@ function Checkout() {
       })
       .catch((err) => console.error(err));
   }, [token, navigate, API_URL]);
+
+  useEffect(() => {
+    if (!token || !selectedAddressId) return;
+
+    const selectedAddress = addresses.find((addr) => addr.id === selectedAddressId);
+    if (!selectedAddress?.pincode) return;
+
+    setDeliveryLoading(true);
+    setDeliveryError('');
+
+    axios.get(`${API_URL}/orders/delivery-estimate/`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { pincode: selectedAddress.pincode },
+    })
+      .then((res) => {
+        setPricingSummary((prev) => ({
+          ...prev,
+          ...res.data,
+        }));
+      })
+      .catch((err) => {
+        const errorMessage = err.response?.data?.error || 'Unable to calculate delivery for the selected pincode';
+        setDeliveryError(errorMessage);
+        toast.error(errorMessage);
+      })
+      .finally(() => {
+        setDeliveryLoading(false);
+      });
+  }, [selectedAddressId, addresses, token, API_URL]);
 
   const getImageUrl = (img) => {
     if (!img) return 'https://via.placeholder.com/150';
@@ -98,6 +137,16 @@ function Checkout() {
       return;
     }
 
+    if (deliveryLoading) {
+      toast.info('Calculating delivery charge, please wait');
+      return;
+    }
+
+    if (deliveryError) {
+      toast.error(deliveryError);
+      return;
+    }
+
     const selectedAddrObject = addresses.find(addr => addr.id === selectedAddressId);
 
     const deliveryData = {
@@ -109,7 +158,7 @@ function Checkout() {
     };
 
     axios.post(`${API_URL}/orders/place-order/`, {
-      total_amount: cartSummary.grand_total,
+      total_amount: pricingSummary.payable_total,
       delivery_address: deliveryData,
       payment_method: paymentMethod
     }, {
@@ -200,7 +249,7 @@ function Checkout() {
                       <h3>{addr.name}</h3>
                       <span className="addr-type">{addr.address_type}</span>
                     </div>
-                    <p className="addr-text">{addr.address}, {addr.city}</p>
+                    <p className="addr-text">{addr.address}</p>
                     <p className="addr-pin">Pincode: <strong>{addr.pincode}</strong></p>
                     <p className="addr-mobile">Mobile: {addr.mobile}</p>
                   </div>
@@ -250,29 +299,51 @@ function Checkout() {
               )}
             </div>
 
+            {deliveryLoading && (
+              <p style={{ margin: '0 0 12px', color: '#555', fontSize: '13px' }}>
+                Calculating delivery charge for the selected pincode...
+              </p>
+            )}
+
+            {pricingSummary.warehouse_pincode && !deliveryError && (
+              <p style={{ margin: '0 0 12px', color: '#555', fontSize: '13px' }}>
+                Warehouse {pricingSummary.warehouse_pincode} to {pricingSummary.destination_pincode}: {pricingSummary.distance_km} km
+              </p>
+            )}
+
+            {deliveryError && (
+              <p style={{ margin: '0 0 12px', color: '#d62828', fontSize: '13px' }}>
+                {deliveryError}
+              </p>
+            )}
+
             <div className="price-breakdown">
               <div className="row">
                 <span>Subtotal</span>
-                <span>{formatCurrency(cartSummary.original_subtotal)}</span>
+                <span>{formatCurrency(pricingSummary.original_subtotal)}</span>
               </div>
-              {Number(cartSummary.bulk_savings || 0) > 0 && (
+              {Number(pricingSummary.bulk_savings || 0) > 0 && (
                 <div className="row">
                   <span>Bulk Savings</span>
-                  <span className="discount">- {formatCurrency(cartSummary.bulk_savings)}</span>
+                  <span className="discount">- {formatCurrency(pricingSummary.bulk_savings)}</span>
                 </div>
               )}
               <div className="row">
                 <span>Discount (10%)</span>
-                <span className="discount">- {formatCurrency(cartSummary.discount)}</span>
+                <span className="discount">- {formatCurrency(pricingSummary.discount)}</span>
               </div>
               <div className="row">
                 <span>GST (18%)</span>
-                <span>+ {formatCurrency(cartSummary.gst)}</span>
+                <span>+ {formatCurrency(pricingSummary.gst)}</span>
+              </div>
+              <div className="row">
+                <span>Delivery Charge</span>
+                <span>+ {formatCurrency(pricingSummary.delivery_charge)}</span>
               </div>
               <div className="divider"></div>
               <div className="row total">
                 <span>Grand Total</span>
-                <span>{formatCurrency(cartSummary.grand_total)}</span>
+                <span>{formatCurrency(pricingSummary.payable_total)}</span>
               </div>
             </div>
 
@@ -309,7 +380,7 @@ function Checkout() {
             <button
               className="place-order-btn"
               onClick={orderhandle}
-              disabled={addresses.length === 0 || cartItems.length === 0}
+              disabled={addresses.length === 0 || cartItems.length === 0 || deliveryLoading || Boolean(deliveryError)}
             >
               PLACE ORDER
             </button>

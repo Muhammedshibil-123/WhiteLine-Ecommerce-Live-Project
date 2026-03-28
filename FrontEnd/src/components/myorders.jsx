@@ -66,6 +66,14 @@ function Myorders() {
 
        return status === 'Pending' ? 'COD' : 'Paid Online';
    };
+   const formatCurrency = (value) => (
+       new Intl.NumberFormat('en-IN', {
+           style: 'currency',
+           currency: 'INR',
+           minimumFractionDigits: 0,
+           maximumFractionDigits: 2,
+       }).format(Number(value || 0))
+   );
 
   return (
     <div className="my-orders-page">
@@ -121,17 +129,22 @@ function Myorders() {
                                     <h3>{item.product_title}</h3>
                                     <p className="size-text">Size: {item.size}</p>
                                     <p>Qty: {item.quantity}</p>
-                                    <p className="price-text">₹{item.price}</p>
+                                    <p className="price-text">{formatCurrency(item.price)}</p>
                                 </div>
                                 <div className="track-item-total">
-                                    <span>Subtotal:</span> ₹{Number(item.price) * item.quantity}
+                                    <span>Subtotal:</span> {formatCurrency(Number(item.price) * item.quantity)}
                                 </div>
                             </div>
                         ))}
                     </div>
 
                     <div className="total-text">
-                        <span>Grand Total : ₹{order.total_amount}</span>
+                        <span>Grand Total : {formatCurrency(order.total_amount)}</span>
+                        {Number(order.delivery_charge || 0) > 0 && (
+                            <small style={{display: 'block', marginTop: '6px', color: '#666'}}>
+                                Delivery included: {formatCurrency(order.delivery_charge)} for {order.delivery_distance_km} km
+                            </small>
+                        )}
                     </div>
 
                     <div className="track-progress-wrapper">
