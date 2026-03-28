@@ -14,94 +14,128 @@
   color: #fff;
   display: flex;
   flex-direction: column;
-  padding: 25px;
+  padding: 30px 20px;
   position: fixed; /* Keeps it stuck to the left */
   top: 0;
   left: 0;
   z-index: 100;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 /* --- Brand --- */
 .main-sidebar h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   margin-bottom: 40px;
   color: #fff;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   text-transform: uppercase;
   text-align: center;
-  border-bottom: 2px solid #333;
-  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 25px;
 }
 
 /* --- Navigation --- */
 .text-div {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex-grow: 1;
 }
 
 .main-sidebar a {
   text-decoration: none;
   width: 100%;
+  display: block;
 }
 
 .main-sidebar p {
-  padding: 14px 18px;
+  padding: 14px 20px;
   font-size: 14px;
-  font-weight: 600;
-  color: #888;
+  font-weight: 500;
+  color: #9ca3af; /* Tailwind gray-400 equivalent */
   margin: 0;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+.nav-icon {
+  font-size: 18px;
+  transition: transform 0.3s ease;
 }
 
 /* Hover & Active States */
 .main-sidebar p:hover {
-  background: #1a1a1a;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
-  padding-left: 22px;
+  transform: translateX(4px);
+}
+
+.main-sidebar p:hover .nav-icon {
+  transform: scale(1.1);
 }
 
 .nav.active p {
   background: #e63946; /* Xenfit Red */
   color: #fff;
-  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.25);
+}
+
+.nav.active:hover p {
+  transform: none; /* Keep active state stable */
+}
+
+/* Visit Store Link Variation */
+.store-link p {
+  margin-top: 15px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: transparent;
+}
+
+.store-link p:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* --- Logout Button --- */
-.main-sidebar button {
+.logout-btn {
   margin-top: auto;
-  margin-bottom: 30%;
+  margin-bottom: 20px;
   width: 100%;
   padding: 14px;
   font-size: 13px;
-  font-weight: 700;
-  border: 1px solid #333;
-  background: #1a1a1a;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   color: #fff;
   cursor: pointer;
-  text-transform: uppercase;
   letter-spacing: 1px;
   transition: all 0.3s ease;
-  border-radius: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.main-sidebar button:hover {
+.logout-icon {
+  font-size: 16px;
+}
+
+.logout-btn:hover {
   background: #e63946;
   border-color: #e63946;
+  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
 }
 
-/* --- Main Content Area (THE FIX) --- */
+/* --- Main Content Area --- */
 .admin-content {
-  margin-left: 330px; /* Exact width of the sidebar */
+  margin-left: 260px; /* Exact width of the sidebar */
   width: calc(100% - 260px); /* Fill remaining space */
   padding: 40px;
   box-sizing: border-box;
