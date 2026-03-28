@@ -8,12 +8,15 @@ class ProductSizeInline(admin.TabularInline):
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
+
+
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'product_code', 'color', 'price', 'brand', 'total_stock')
-    list_filter = ('brand', 'theme', 'color', 'sleeve_type')
-    search_fields = ('title', 'product_code', 'brand')
-    
+    list_display = ('title', 'category', 'fit', 'style', 'color', 'price', 'brand', 'total_stock')
+    list_filter = ('brand', 'category', 'fit', 'style', 'color')
+    search_fields = ('title', 'product_code', 'brand', 'color', 'category', 'fit', 'style')
+
     inlines = [ProductSizeInline, ProductImageInline]
+
     def total_stock(self, obj):
         return sum(item.stock for item in obj.sizes.all())
 

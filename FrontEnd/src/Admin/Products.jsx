@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import './products.css'
 import closing from '../assets/closing.png'
+import {
+  PRODUCT_CATEGORY_OPTIONS,
+  PRODUCT_FIT_OPTIONS,
+  PRODUCT_STYLE_OPTIONS,
+} from '../constants/productOptions'
 
 function Products() {
   const [products, setProducts] = useState([])
@@ -13,11 +18,13 @@ function Products() {
   const [stockForm, setStockForm] = useState({ S: 0, M: 0, L: 0, XL: 0, XXL: 0 })
 
   const [search, setSearch] = useState('')
-  const [catSort, setCatSort] = useState('all') 
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [fitFilter, setFitFilter] = useState('all')
+  const [styleFilter, setStyleFilter] = useState('all')
   
   const [newProduct, setNewProducts] = useState({
     title: '', product_code: '', color: '', brand: '',
-    sleeve_type: '', theme: '', description: '',
+    category: '', fit: '', style: '', description: '',
     price: '', mrp: '', status: 'active'
   })
   
@@ -123,7 +130,7 @@ function Products() {
         setpopAdd(false)
         setNewProducts({
           title: '', product_code: '', color: '', brand: '', 
-          sleeve_type: '', theme: '', description: '', 
+          category: '', fit: '', style: '', description: '', 
           price: '', mrp: '', status: 'active'
         })
         setImageFile(null)
@@ -164,8 +171,9 @@ function Products() {
     formData.append('product_code', currentProduct.product_code);
     formData.append('color', currentProduct.color);
     formData.append('brand', currentProduct.brand);
-    formData.append('sleeve_type', currentProduct.sleeve_type);
-    formData.append('theme', currentProduct.theme);
+    formData.append('category', currentProduct.category);
+    formData.append('fit', currentProduct.fit);
+    formData.append('style', currentProduct.style);
     formData.append('description', currentProduct.description);
     formData.append('price', currentProduct.price);
     if(currentProduct.mrp) formData.append('mrp', currentProduct.mrp);
@@ -198,12 +206,29 @@ function Products() {
 
   let filterProducts = products.filter((product) => (
     (product.title?.toLowerCase() || '').includes(search.toLowerCase()) ||
-    (product.brand?.toLowerCase() || '').includes(search.toLowerCase())
+    (product.brand?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (product.product_code?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (product.color?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (product.category?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (product.fit?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (product.style?.toLowerCase() || '').includes(search.toLowerCase())
   ))
 
-  if (catSort !== 'all') {
+  if (categoryFilter !== 'all') {
     filterProducts = filterProducts.filter((product) =>
-      product.sleeve_type && product.sleeve_type.toLowerCase() === catSort.toLowerCase()
+      product.category && product.category.toLowerCase() === categoryFilter.toLowerCase()
+    )
+  }
+
+  if (fitFilter !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.fit && product.fit.toLowerCase() === fitFilter.toLowerCase()
+    )
+  }
+
+  if (styleFilter !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.style && product.style.toLowerCase() === styleFilter.toLowerCase()
     )
   }
 
@@ -236,12 +261,27 @@ function Products() {
               <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search products...' value={search}/>
             </div>
             <div className="filter-box">
-              <select value={catSort} onChange={(e) => setCatSort(e.target.value)}>
-                <option value="all">All Types</option>
-                <option value="oversized">Oversized</option>
-                <option value="half sleeve">Half Sleeve</option>
-                <option value="full sleeve">Full Sleeve</option>
-                <option value="sleeveless">Sleeveless</option>
+              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                <option value="all">All Categories</option>
+                {PRODUCT_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-box">
+              <select value={fitFilter} onChange={(e) => setFitFilter(e.target.value)}>
+                <option value="all">All Fits</option>
+                {PRODUCT_FIT_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-box">
+              <select value={styleFilter} onChange={(e) => setStyleFilter(e.target.value)}>
+                <option value="all">All Styles</option>
+                {PRODUCT_STYLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
               </select>
             </div>
             <button className="add-btn" onClick={() => setpopAdd(true)}>+ NEW DROP</button>
@@ -267,7 +307,7 @@ function Products() {
               </span>
               <span className='col-title'>
                 <strong>{product.title}</strong>
-                <p>{product.brand} | {product.color}</p>
+                <p>{product.brand} | {product.color} | {product.category}</p>
               </span>
               
               <span className='col-price'>₹{product.price}</span>
@@ -305,8 +345,9 @@ function Products() {
                     <div className="input-group"><label>Brand</label><input type="text" name='brand' value={newProduct.brand} onChange={handleInputChange} required /></div>
                     <div className="input-group"><label>Product Code</label><input type="text" name='product_code' value={newProduct.product_code} onChange={handleInputChange} required /></div>
                     <div className="input-group"><label>Color</label><input type="text" name='color' value={newProduct.color} onChange={handleInputChange} required /></div>
-                    <div className="input-group"><label>Sleeve Type</label><select name='sleeve_type' value={newProduct.sleeve_type} onChange={handleInputChange} required><option value="">Select</option><option value="Half Sleeve">Half Sleeve</option><option value="Full Sleeve">Full Sleeve</option><option value="Sleeveless">Sleeveless</option><option value="Oversized">Oversized</option></select></div>
-                    <div className="input-group"><label>Theme</label><select name='theme' value={newProduct.theme} onChange={handleInputChange} required><option value="">Select</option><option value="Anime">Anime</option><option value="Sports">Sports</option><option value="Movie">Movie</option><option value="Motivational">Motivational</option><option value="Minimal">Minimal</option><option value="Vintage">Vintage</option></select></div>
+                    <div className="input-group"><label>Category</label><select name='category' value={newProduct.category} onChange={handleInputChange} required><option value="">Select</option>{PRODUCT_CATEGORY_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
+                    <div className="input-group"><label>Fit</label><select name='fit' value={newProduct.fit} onChange={handleInputChange} required><option value="">Select</option>{PRODUCT_FIT_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
+                    <div className="input-group"><label>Style</label><select name='style' value={newProduct.style} onChange={handleInputChange} required><option value="">Select</option>{PRODUCT_STYLE_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
                     <div className="input-group"><label>Price</label><input type="number" name='price' value={newProduct.price} onChange={handleInputChange} required /></div>
                     <div className="input-group"><label>MRP</label><input type="number" name='mrp' value={newProduct.mrp} onChange={handleInputChange} /></div>
                     <div className="input-group full-width"><label>Main Image</label><input type="file" accept="image/*" onChange={handleImageChange} required /></div>
@@ -341,8 +382,9 @@ function Products() {
                      <div className="input-group"><label>Brand</label><input type="text" name='brand' value={currentProduct.brand} onChange={handleInputChangeEdit} required /></div>
                      <div className="input-group"><label>Product Code</label><input type="text" name='product_code' value={currentProduct.product_code} onChange={handleInputChangeEdit} required /></div>
                      <div className="input-group"><label>Color</label><input type="text" name='color' value={currentProduct.color} onChange={handleInputChangeEdit} required /></div>
-                     <div className="input-group"><label>Sleeve Type</label><select name='sleeve_type' value={currentProduct.sleeve_type} onChange={handleInputChangeEdit} required><option value="Half Sleeve">Half Sleeve</option><option value="Full Sleeve">Full Sleeve</option><option value="Sleeveless">Sleeveless</option><option value="Oversized">Oversized</option></select></div>
-                     <div className="input-group"><label>Theme</label><select name='theme' value={currentProduct.theme} onChange={handleInputChangeEdit} required><option value="Anime">Anime</option><option value="Sports">Sports</option><option value="Movie">Movie</option><option value="Motivational">Motivational</option><option value="Minimal">Minimal</option><option value="Vintage">Vintage</option></select></div>
+                     <div className="input-group"><label>Category</label><select name='category' value={currentProduct.category} onChange={handleInputChangeEdit} required>{PRODUCT_CATEGORY_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
+                     <div className="input-group"><label>Fit</label><select name='fit' value={currentProduct.fit} onChange={handleInputChangeEdit} required>{PRODUCT_FIT_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
+                     <div className="input-group"><label>Style</label><select name='style' value={currentProduct.style} onChange={handleInputChangeEdit} required>{PRODUCT_STYLE_OPTIONS.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
                      <div className="input-group"><label>Price</label><input type="number" name='price' value={currentProduct.price} onChange={handleInputChangeEdit} required /></div>
                      <div className="input-group"><label>MRP</label><input type="number" name='mrp' value={currentProduct.mrp} onChange={handleInputChangeEdit} /></div>
                      <div className="input-group full-width"><label>Update Main Image</label><input type="file" accept="image/*" onChange={handleImageChange} /></div>

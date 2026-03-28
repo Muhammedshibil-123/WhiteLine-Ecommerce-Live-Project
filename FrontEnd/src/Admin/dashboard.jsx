@@ -101,7 +101,7 @@ function Dashbaord() {
             image: item.product_image,
             price: item.price,
             sales: item.quantity,
-            category: originalProduct?.theme || 'General'
+            category: originalProduct?.category || 'T-Shirts'
           })
         }
       })

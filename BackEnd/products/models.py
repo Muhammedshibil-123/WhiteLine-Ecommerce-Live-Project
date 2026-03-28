@@ -5,27 +5,41 @@ from users_app.models import CustomUser
 
 # Create your models here.
 class Product(models.Model):
+    PRODUCT_CATEGORY_CHOICES = [
+        ('T-Shirts', 'T-Shirts'),
+        ('Shirts', 'Shirts'),
+        ('Polos', 'Polos'),
+        ('Hoodies', 'Hoodies'),
+        ('Jackets', 'Jackets'),
+        ('Joggers', 'Joggers'),
+        ('Shorts', 'Shorts'),
+        ('Co-ords', 'Co-ords'),
+        ('Basics', 'Basics'),
+    ]
+    FIT_CHOICES = [
+        ('Regular', 'Regular'),
+        ('Oversized', 'Oversized'),
+        ('Relaxed', 'Relaxed'),
+        ('Slim', 'Slim'),
+    ]
+    STYLE_CHOICES = [
+        ('Minimal', 'Minimal'),
+        ('Graphic', 'Graphic'),
+        ('Streetwear', 'Streetwear'),
+        ('Basics', 'Basics'),
+        ('Premium', 'Premium'),
+        ('Printed', 'Printed'),
+        ('Solid', 'Solid'),
+    ]
+
     title = models.CharField(max_length=200)
     product_code = models.CharField(max_length=50, help_text="Common code for same products with different colors")
-    
+
+    category = models.CharField(max_length=30, choices=PRODUCT_CATEGORY_CHOICES, default='T-Shirts')
+    fit = models.CharField(max_length=20, choices=FIT_CHOICES, default='Regular')
+    style = models.CharField(max_length=30, choices=STYLE_CHOICES, default='Printed')
     color = models.CharField(max_length=50)
     brand = models.CharField(max_length=100)
-    CATEGORY_CHOICES = [
-        ('Anime', 'Anime'),
-        ('Sports', 'Sports'),
-        ('Movie', 'Movie'),
-        ('Motivational', 'Motivational'),
-        ('Minimal', 'Minimal'),
-        ('Vintage', 'Vintage'),
-    ]
-    theme = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    SLEEVE_CHOICES = [
-        ('Half Sleeve', 'Half Sleeve'),
-        ('Full Sleeve', 'Full Sleeve'),
-        ('Sleeveless', 'Sleeveless'),
-        ('Oversized', 'Oversized'),
-    ]
-    sleeve_type = models.CharField(max_length=20, choices=SLEEVE_CHOICES, default='Half Sleeve')
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     mrp = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

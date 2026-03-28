@@ -2,12 +2,18 @@ import { NavLink } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import './shop.css'
-import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import { CartContext } from "../component/cartcouter";
 import { WishlistContext } from "../component/whislistcouter";
 import { SearchContext } from "../component/searchcontext";
 import ReactPaginate from "react-paginate";
+import {
+  PRODUCT_CATEGORY_OPTIONS,
+  PRODUCT_FIT_OPTIONS,
+  PRODUCT_PRICE_FILTER_OPTIONS,
+  PRODUCT_SIZE_OPTIONS,
+  PRODUCT_STYLE_OPTIONS,
+} from "../constants/productOptions";
 
 
 const getApiUrl = () => {
@@ -25,12 +31,14 @@ function Shop() {
   const API_URL = getApiUrl();
 
   const [sortType, setSortType] = useState('default')
-  const [themeSort, setThemeSort] = useState('all')
-  const [sleeveSort, setSleeveSort] = useState('all')
+  const [categorySort, setCategorySort] = useState('all')
+  const [fitSort, setFitSort] = useState('all')
+  const [colorSort, setColorSort] = useState('all')
+  const [sizeSort, setSizeSort] = useState('all')
+  const [priceSort, setPriceSort] = useState('all')
+  const [styleSort, setStyleSort] = useState('all')
 
   const BASE_URL = API_URL.replace('/api', '');
-
-  const navigate = useNavigate()
 
   const { searchTerm } = useContext(SearchContext)
   const { CartHandleChange } = useContext(CartContext)
@@ -45,7 +53,6 @@ function Shop() {
     axios
       .get(`${API_URL}/products/`)
       .then((res) => {
-        console.log("Products Fetched:", res.data);
         let filterdata = res.data.filter((product) => {
           return product.status === 'active'
         })
@@ -60,10 +67,54 @@ function Shop() {
   let filterProducts = products.filter((product) =>
     (product.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (product.brand?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (product.theme?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (product.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (product.fit?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (product.style?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (product.color?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (product.description?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   )
 
+  if (categorySort !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.category && product.category.toLowerCase() === categorySort.toLowerCase()
+    )
+  }
+
+  if (fitSort !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.fit && product.fit.toLowerCase() === fitSort.toLowerCase()
+    )
+  }
+
+  if (colorSort !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.color && product.color.toLowerCase() === colorSort.toLowerCase()
+    )
+  }
+
+  if (sizeSort !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.sizes?.some((size) => size.size === sizeSort && Number(size.stock) > 0)
+    )
+  }
+
+  if (priceSort !== 'all') {
+    filterProducts = filterProducts.filter((product) => {
+      const price = Number(product.price || 0)
+
+      if (priceSort === 'under-999') return price < 1000
+      if (priceSort === '1000-1499') return price >= 1000 && price <= 1499
+      if (priceSort === '1500-1999') return price >= 1500 && price <= 1999
+      if (priceSort === '2000-above') return price >= 2000
+      return true
+    })
+  }
+
+  if (styleSort !== 'all') {
+    filterProducts = filterProducts.filter((product) =>
+      product.style && product.style.toLowerCase() === styleSort.toLowerCase()
+    )
+  }
 
   if (sortType === 'low to high') {
     filterProducts.sort((a, b) => a.price - b.price)
@@ -71,18 +122,13 @@ function Shop() {
     filterProducts.sort((a, b) => b.price - a.price)
   }
 
+  const colorOptions = Array.from(
+    new Set(products.map((product) => product.color).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b))
 
-  if (themeSort !== 'all') {
-    filterProducts = filterProducts.filter((product) =>
-      product.theme && product.theme.toLowerCase() === themeSort.toLowerCase()
-    )
-  }
-
-  if (sleeveSort !== 'all') {
-    filterProducts = filterProducts.filter((product) =>
-      product.sleeve_type && product.sleeve_type.toLowerCase() === sleeveSort.toLowerCase()
-    )
-  }
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [searchTerm, sortType, categorySort, fitSort, colorSort, sizeSort, priceSort, styleSort])
 
 
   function whishlistcolor(productId) {
@@ -132,27 +178,62 @@ function Shop() {
 
 
         <div className="filter-group">
-          <label>Theme</label>
-          <select value={themeSort} onChange={(e) => setThemeSort(e.target.value)}>
-            <option value="all">All Themes</option>
-            <option value="Anime">Anime</option>
-            <option value="Sports">Sports</option>
-            <option value="Movie">Movie</option>
-            <option value="Motivational">Motivational</option>
-            <option value="Minimal">Minimal</option>
-            <option value="Vintage">Vintage</option>
+          <label>Category</label>
+          <select value={categorySort} onChange={(e) => setCategorySort(e.target.value)}>
+            <option value="all">All Categories</option>
+            {PRODUCT_CATEGORY_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
           </select>
         </div>
 
 
         <div className="filter-group">
-          <label>Sleeve Type</label>
-          <select value={sleeveSort} onChange={(e) => setSleeveSort(e.target.value)}>
-            <option value="all">All Types</option>
-            <option value="Half Sleeve">Half Sleeve</option>
-            <option value="Full Sleeve">Full Sleeve</option>
-            <option value="Sleeveless">Sleeveless</option>
-            <option value="Oversized">Oversized</option>
+          <label>Fit</label>
+          <select value={fitSort} onChange={(e) => setFitSort(e.target.value)}>
+            <option value="all">All Fits</option>
+            {PRODUCT_FIT_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Color</label>
+          <select value={colorSort} onChange={(e) => setColorSort(e.target.value)}>
+            <option value="all">All Colors</option>
+            {colorOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Size</label>
+          <select value={sizeSort} onChange={(e) => setSizeSort(e.target.value)}>
+            <option value="all">All Sizes</option>
+            {PRODUCT_SIZE_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Price</label>
+          <select value={priceSort} onChange={(e) => setPriceSort(e.target.value)}>
+            {PRODUCT_PRICE_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Style</label>
+          <select value={styleSort} onChange={(e) => setStyleSort(e.target.value)}>
+            <option value="all">All Styles</option>
+            {PRODUCT_STYLE_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
           </select>
         </div>
       </div>

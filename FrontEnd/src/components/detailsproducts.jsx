@@ -397,12 +397,16 @@ function Detailsproducts() {
                         <p className='description'>{product.description}</p>
                         <div className="spec-grid">
                             <div className="spec-item">
-                                <span className="label">Theme:</span>
-                                <span className="value">{product.theme || '-'}</span>
+                                <span className="label">Category:</span>
+                                <span className="value">{product.category || '-'}</span>
                             </div>
                             <div className="spec-item">
                                 <span className="label">Fit:</span>
-                                <span className="value">{product.sleeve_type || '-'}</span>
+                                <span className="value">{product.fit || '-'}</span>
+                            </div>
+                            <div className="spec-item">
+                                <span className="label">Style:</span>
+                                <span className="value">{product.style || '-'}</span>
                             </div>
                             <div className="spec-item">
                                 <span className="label">Code:</span>
