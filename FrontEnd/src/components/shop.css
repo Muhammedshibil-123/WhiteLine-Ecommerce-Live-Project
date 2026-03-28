@@ -152,55 +152,382 @@
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+/* --- Main Layout --- */
+.main-shop-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+  padding: 40px;
+  background-color: #fff;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- Product Card --- */
+.shop-container {
+  background: white;
+  border: 1px solid #eee; 
+  padding: 0;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.shop-container:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: #ddd;
+}
+
+/* Image Area */
+.product-image-box {
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  position: relative;
+  background-color: #f9f9f9;
+}
+
+.shop-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.shop-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Discount Badge */
+.discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #000;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 5;
+}
+
+/* Wishlist Icon */
+.whislist-contaniner {
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  right: 10px;
+  top: 10px;
+  background-color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.whislist-contaniner:hover {
+  transform: scale(1.1);
+}
+
+/* Info Area */
+.product-info-box {
+  padding: 15px;
+  text-align: left;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-container h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 4px 0;
+  text-transform: none; /* Changed based on reference usually standard case looks better, but ref had mixed */
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shop-container h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Price Row */
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.selling-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #3b07b4; /* Purple/Blue color from reference */
+}
+
+.mrp-price {
+  font-size: 13px;
+  color: #9ca3af; /* Light grey */
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+/* --- Buttons & Actions --- */
+.button-wrapper {
+  padding: 0 15px 20px 15px;
+}
+
+.shop-container .addtocart {
+  background-color: #fff;
+  color: #111;
+  border: 1px solid #111;
+  padding: 12px;
+  width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
 .shop-container .addtocart:hover {
   background-color: #111;
   color: white;
 }
 
-/* --- Filters Section --- */
+/* --- Shop Header & Filters --- */
+.shop-header-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 40px 0;
+  background-color: #fff;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.shop-header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  margin: 0;
+  color: #111;
+}
+
+.toggle-filters-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Drawer Overlay */
+.filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  backdrop-filter: blur(4px);
+}
+
+/* Drawer Container */
+.filter-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  max-width: 90vw;
+  height: 100vh;
+  background: #fff;
+  z-index: 1101;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.drawer-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.close-drawer-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.close-drawer-btn:hover {
+  color: #e63946;
+}
+
 .filters-container {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 30px 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 25px;
+  padding: 30px 25px;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 5px;
+  gap: 8px;
+  width: 100%;
 }
 
 .filter-group label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #888;
+  color: #555;
   letter-spacing: 0.5px;
-  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 2px;
+}
+
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.price-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  outline: none;
+  background: #fafafa;
+  min-width: 0; 
+}
+
+.price-input:focus {
+  border-color: #111;
+  background: #fff;
+}
+
+.apply-price-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s;
+}
+
+.apply-price-btn:hover {
+  background: #333;
+}
+
+/* Custom Select Wrapper */
+.select-wrapper {
+  position: relative;
+  width: 100%;
 }
 
 .filters-container select {
-  min-width: 180px;
-  padding: 10px 15px;
-  border-radius: 0;
-  border: 1px solid #ddd;
-  background: #fff;
+  width: 100%;
+  padding: 12px 35px 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
   font-size: 13px;
   font-weight: 500;
   color: #333;
   cursor: pointer;
+  appearance: none; /* Hide default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+}
+
+.filters-container select:hover {
+  border-color: #ccc;
+  background: #fff;
 }
 
 .filters-container select:focus {
   border-color: #111;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.1);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #888;
+  font-size: 15px;
 }
 
 /* --- Pagination --- */
@@ -236,32 +563,50 @@
 
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
+  
+  .shop-header-wrapper {
+    padding: 20px 20px 0;
+  }
+
+  .shop-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .toggle-filters-btn {
+    width: 100%;
+    justify-content: center;
+  }
 
   .filters-container {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-    padding: 8px 10px;
-    width: 100%;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
   }
 
   .filter-group {
     width: 100%;
+    min-width: unset;
   }
 
   .filter-group label {
-    font-size: 8px;
+    font-size: 10px;
     margin: 0 0 2px 2px;
     white-space: nowrap;
   }
 
   .filters-container select {
     width: 100%;
-    height: 28px;
-    font-size: 10px;
-    padding: 4px 6px;
+    height: 38px;
+    font-size: 12px;
+    padding: 8px 30px 8px 10px;
     box-sizing: border-box;
+  }
+  
+  .select-arrow {
+    right: 10px;
   }
 
   /* ================= PRODUCT GRID ================= */

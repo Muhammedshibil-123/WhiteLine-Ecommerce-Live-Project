@@ -3,6 +3,8 @@ import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import './shop.css'
 import { FaHeart } from "react-icons/fa";
+import { FiFilter, FiChevronDown, FiX } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "../component/cartcouter";
 import { WishlistContext } from "../component/whislistcouter";
 import { SearchContext } from "../component/searchcontext";
@@ -30,18 +32,24 @@ function Shop() {
   const [products, setProducts] = useState([]);
   const API_URL = getApiUrl();
 
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [sortType, setSortType] = useState('default')
   const [categorySort, setCategorySort] = useState('all')
   const [fitSort, setFitSort] = useState('all')
   const [colorSort, setColorSort] = useState('all')
   const [sizeSort, setSizeSort] = useState('all')
-  const [priceSort, setPriceSort] = useState('all')
   const [styleSort, setStyleSort] = useState('all')
+
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [appliedMinPrice, setAppliedMinPrice] = useState('');
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState('');
 
   const BASE_URL = API_URL.replace('/api', '');
 
   const { searchTerm } = useContext(SearchContext)
   const { CartHandleChange } = useContext(CartContext)
+
 
 
   const { WishlistHandleChange, wishlist } = useContext(WishlistContext)
@@ -50,8 +58,17 @@ function Shop() {
   const productsPerPage = 12
 
   useEffect(() => {
+    let url = `${API_URL}/products/`;
+    const params = new URLSearchParams();
+    if (appliedMinPrice) params.append("min_price", appliedMinPrice);
+    if (appliedMaxPrice) params.append("max_price", appliedMaxPrice);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
     axios
-      .get(`${API_URL}/products/`)
+      .get(url)
       .then((res) => {
         let filterdata = res.data.filter((product) => {
           return product.status === 'active'
@@ -61,7 +78,7 @@ function Shop() {
       .catch((err) => {
         console.error("Error fetching products:", err);
       });
-  }, [API_URL]);
+  }, [API_URL, appliedMinPrice, appliedMaxPrice]);
 
 
   let filterProducts = products.filter((product) =>
@@ -98,17 +115,6 @@ function Shop() {
     )
   }
 
-  if (priceSort !== 'all') {
-    filterProducts = filterProducts.filter((product) => {
-      const price = Number(product.price || 0)
-
-      if (priceSort === 'under-999') return price < 1000
-      if (priceSort === '1000-1499') return price >= 1000 && price <= 1499
-      if (priceSort === '1500-1999') return price >= 1500 && price <= 1999
-      if (priceSort === '2000-above') return price >= 2000
-      return true
-    })
-  }
 
   if (styleSort !== 'all') {
     filterProducts = filterProducts.filter((product) =>
@@ -128,7 +134,7 @@ function Shop() {
 
   useEffect(() => {
     setCurrentPage(0)
-  }, [searchTerm, sortType, categorySort, fitSort, colorSort, sizeSort, priceSort, styleSort])
+  }, [searchTerm, sortType, categorySort, fitSort, colorSort, sizeSort, appliedMinPrice, appliedMaxPrice, styleSort])
 
 
   function whishlistcolor(productId) {
@@ -165,84 +171,164 @@ function Shop() {
 
   return (
     <>
-      <div className="filters-container">
-
-        <div className="filter-group">
-          <label>Sort By</label>
-          <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
-            <option value="default">Featured</option>
-            <option value="low to high">Price: Low to High</option>
-            <option value="high to low">Price: High to Low</option>
-          </select>
+      <div className="shop-header-wrapper">
+        <div className="shop-header">
+          <h2>Shop Collection</h2>
+          <motion.button 
+            className="toggle-filters-btn"
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isFiltersOpen ? <><FiX /> Close Filters</> : <><FiFilter /> Filter & Sort</>}
+          </motion.button>
         </div>
 
+        <AnimatePresence>
+          {isFiltersOpen && (
+            <>
+              {/* Overlay Backdrop */}
+              <motion.div
+                className="filter-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsFiltersOpen(false)}
+              />
 
-        <div className="filter-group">
-          <label>Category</label>
-          <select value={categorySort} onChange={(e) => setCategorySort(e.target.value)}>
-            <option value="all">All Categories</option>
-            {PRODUCT_CATEGORY_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
+              {/* Right-Side Drawer */}
+              <motion.div 
+                className="filter-drawer"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              >
+                <div className="drawer-header">
+                  <h3><FiFilter /> Filter & Sort</h3>
+                  <button className="close-drawer-btn" onClick={() => setIsFiltersOpen(false)}>
+                    <FiX />
+                  </button>
+                </div>
 
+                <div className="filters-container">
+                  <div className="filter-group">
+                    <label>Sort By</label>
+                    <div className="select-wrapper">
+                      <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
+                        <option value="default">Featured</option>
+                        <option value="low to high">Price: Low to High</option>
+                        <option value="high to low">Price: High to Low</option>
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
 
-        <div className="filter-group">
-          <label>Fit</label>
-          <select value={fitSort} onChange={(e) => setFitSort(e.target.value)}>
-            <option value="all">All Fits</option>
-            {PRODUCT_FIT_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
+                  <div className="filter-group">
+                    <label>Category</label>
+                    <div className="select-wrapper">
+                      <select value={categorySort} onChange={(e) => setCategorySort(e.target.value)}>
+                        <option value="all">All Categories</option>
+                        {PRODUCT_CATEGORY_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
 
-        <div className="filter-group">
-          <label>Color</label>
-          <select value={colorSort} onChange={(e) => setColorSort(e.target.value)}>
-            <option value="all">All Colors</option>
-            {colorOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
+                  <div className="filter-group">
+                    <label>Fit</label>
+                    <div className="select-wrapper">
+                      <select value={fitSort} onChange={(e) => setFitSort(e.target.value)}>
+                        <option value="all">All Fits</option>
+                        {PRODUCT_FIT_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
 
-        <div className="filter-group">
-          <label>Size</label>
-          <select value={sizeSort} onChange={(e) => setSizeSort(e.target.value)}>
-            <option value="all">All Sizes</option>
-            {PRODUCT_SIZE_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
+                  <div className="filter-group">
+                    <label>Color</label>
+                    <div className="select-wrapper">
+                      <select value={colorSort} onChange={(e) => setColorSort(e.target.value)}>
+                        <option value="all">All Colors</option>
+                        {colorOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
 
-        <div className="filter-group">
-          <label>Price</label>
-          <select value={priceSort} onChange={(e) => setPriceSort(e.target.value)}>
-            {PRODUCT_PRICE_FILTER_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
+                  <div className="filter-group">
+                    <label>Size</label>
+                    <div className="select-wrapper">
+                      <select value={sizeSort} onChange={(e) => setSizeSort(e.target.value)}>
+                        <option value="all">All Sizes</option>
+                        {PRODUCT_SIZE_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
 
-        <div className="filter-group">
-          <label>Style</label>
-          <select value={styleSort} onChange={(e) => setStyleSort(e.target.value)}>
-            <option value="all">All Styles</option>
-            {PRODUCT_STYLE_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
+                  <div className="filter-group">
+                    <label>Price Range</label>
+                    <div className="price-inputs">
+                      <input 
+                        type="number" 
+                        placeholder="Min" 
+                        value={minPrice} 
+                        onChange={(e) => setMinPrice(e.target.value)} 
+                        className="price-input"
+                      />
+                      <span style={{color: '#999'}}>-</span>
+                      <input 
+                        type="number" 
+                        placeholder="Max" 
+                        value={maxPrice} 
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        className="price-input"
+                      />
+                      <button 
+                        className="apply-price-btn" 
+                        onClick={() => {
+                          setAppliedMinPrice(minPrice);
+                          setAppliedMaxPrice(maxPrice);
+                        }}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>Style</label>
+                    <div className="select-wrapper">
+                      <select value={styleSort} onChange={(e) => setStyleSort(e.target.value)}>
+                        <option value="all">All Styles</option>
+                        {PRODUCT_STYLE_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="select-arrow" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="main-shop-container">
         {currentProducts.map((product, index) => {
 
           const discount = product.mrp ? Math.round(((product.mrp - product.price) / product.mrp) * 100) : 0;
-
 
           // const imageUrl = product.image
           //   ? (product.image.toString().startsWith('http')

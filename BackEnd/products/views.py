@@ -88,7 +88,24 @@ class ProductListCreateView(ProductImageUploadMixin, generics.ListCreateAPIView)
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        return get_product_queryset()
+        qs = get_product_queryset()
+        
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+        
+        if min_price:
+            try:
+                qs = qs.filter(price__gte=float(min_price))
+            except ValueError:
+                pass
+                
+        if max_price:
+            try:
+                qs = qs.filter(price__lte=float(max_price))
+            except ValueError:
+                pass
+                
+        return qs
 
     def get_serializer_class(self):
         return ProductListSerializer
