@@ -10,7 +10,6 @@ const defaultPricingSummary = {
   subtotal: '0.00',
   bulk_savings: '0.00',
   discount: '0.00',
-  gst: '0.00',
   grand_total: '0.00',
   delivery_charge: '0.00',
   distance_km: '0.00',
@@ -66,7 +65,6 @@ function Checkout() {
           subtotal: res.data.subtotal || '0.00',
           bulk_savings: res.data.bulk_savings || '0.00',
           discount: res.data.discount || '0.00',
-          gst: res.data.gst || '0.00',
           grand_total: res.data.grand_total || '0.00',
           payable_total: res.data.grand_total || '0.00',
         }));
@@ -331,10 +329,6 @@ function Checkout() {
               <div className="row">
                 <span>Discount (10%)</span>
                 <span className="discount">- {formatCurrency(pricingSummary.discount)}</span>
-              </div>
-              <div className="row">
-                <span>GST (18%)</span>
-                <span>+ {formatCurrency(pricingSummary.gst)}</span>
               </div>
               <div className="row">
                 <span>Delivery Charge</span>

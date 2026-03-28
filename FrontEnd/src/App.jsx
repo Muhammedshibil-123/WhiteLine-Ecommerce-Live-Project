@@ -27,6 +27,7 @@ import Orders from './Admin/orders'
 import Products from './Admin/Products'
 import Reviews from './Admin/reviews'
 import DeliverySettings from './Admin/deliverysettings'
+import GeneralSettings from './Admin/generalsettings'
 import { SearchProvider } from './component/searchcontext'
 import OtpVerify from './components/otpverfiy';
 import { AuthProvider } from './component/AuthContext';
@@ -96,6 +97,7 @@ function App() {
                       <Route index element={<Dashbaord />} />
                       <Route path='users' element={<Users />} />
                       <Route path='products' element={<Products />} />
+                      <Route path='general' element={<GeneralSettings />} />
                       <Route path='orders' element={<Orders />} />
                       <Route path='delivery' element={<DeliverySettings />} />
                       <Route path='reviews' element={<Reviews />} />

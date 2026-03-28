@@ -3,14 +3,18 @@ import './navbar.css'
 import { NavLink } from 'react-router-dom'
 import axios from 'axios'
 import './home.css'
-import shipping from '../assets/freeshipping.png'
-import refund from '../assets/tick-home.png'
-import wallet from '../assets/wallet.png'
-import technical from '../assets/admin.png'
 import { CartContext } from "../component/cartcouter.jsx";
+
+const defaultHomeImages = {
+  home_hero_image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop',
+  home_category_oversized_image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1887&auto=format&fit=crop',
+  home_category_minimal_image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=1887&auto=format&fit=crop',
+  home_category_printed_image: 'https://images.unsplash.com/photo-1503342394128-c104d54dba01?q=80&w=1887&auto=format&fit=crop',
+}
 
 function Home() {
   const [products, setProducts] = useState([])
+  const [generalSettings, setGeneralSettings] = useState({})
 
   const { CartHandleChange } = useContext(CartContext)
 
@@ -31,9 +35,14 @@ function Home() {
   };
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/products/`)
-      .then((res) => setProducts(res.data))
+    Promise.all([
+      axios.get(`${API_URL}/products/`),
+      axios.get(`${API_URL}/orders/general-settings/`).catch(() => ({ data: {} })),
+    ])
+      .then(([productsRes, settingsRes]) => {
+        setProducts(productsRes.data)
+        setGeneralSettings(settingsRes.data || {})
+      })
       .catch((err) => console.log(err));
   }, [API_URL]);
 
@@ -68,10 +77,19 @@ function Home() {
     );
   };
 
+  const getHomeImage = (fieldName) => {
+    return generalSettings[fieldName] || defaultHomeImages[fieldName]
+  }
+
   return (
     <>
 
-      <div className="hero-section">
+      <div
+        className="hero-section"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url("${getHomeImage('home_hero_image')}")`
+        }}
+      >
         <div className="hero-content">
           <h1>XENFIT <br /> COLLECTION.</h1>
           <p>Premium oversized tshirts & customized printed tshirts.</p>
@@ -83,13 +101,13 @@ function Home() {
 
 
       <div className="category-section">
-        <NavLink to={'/shop'} className="cat-card">
+        <NavLink to={'/shop'} className="cat-card" style={{ backgroundImage: `url("${getHomeImage('home_category_oversized_image')}")` }}>
           <div className="overlay"><h2>OVERSIZED</h2></div>
         </NavLink>
-        <NavLink to={'/shop'} className="cat-card cat-polo">
+        <NavLink to={'/shop'} className="cat-card cat-polo" style={{ backgroundImage: `url("${getHomeImage('home_category_minimal_image')}")` }}>
           <div className="overlay"><h2>Minimal</h2></div>
         </NavLink>
-        <NavLink to={'/shop'} className="cat-card cat-women">
+        <NavLink to={'/shop'} className="cat-card cat-women" style={{ backgroundImage: `url("${getHomeImage('home_category_printed_image')}")` }}>
           <div className="overlay"><h2>Printed</h2></div>
         </NavLink>
       </div>
@@ -190,22 +208,18 @@ function Home() {
 
       <div className="features-grid">
         <div className="feature-item">
-          <img src={shipping} alt="Free Shipping" />
           <h3>Free Shipping</h3>
           <p>On orders above ₹199</p>
         </div>
         <div className="feature-item">
-          <img src={refund} alt="Easy Returns" />
           <h3>Easy Returns</h3>
           <p>7 Days replacement</p>
         </div>
         <div className="feature-item">
-          <img src={wallet} alt="Secure Payment" />
           <h3>Secure Payment</h3>
           <p>100% Secure Transaction</p>
         </div>
         <div className="feature-item">
-          <img src={technical} alt="Support" />
           <h3>24/7 Support</h3>
           <p>We are here to help</p>
         </div>

@@ -51,6 +51,37 @@ class DeliverySettings(models.Model):
         return 'Delivery Settings'
 
 
+class GeneralSettings(models.Model):
+    IMAGE_FIELDS = (
+        'home_hero_image',
+        'home_category_oversized_image',
+        'home_category_minimal_image',
+        'home_category_printed_image',
+    )
+
+    home_hero_image = models.URLField(max_length=1000, blank=True, null=True)
+    home_category_oversized_image = models.URLField(max_length=1000, blank=True, null=True)
+    home_category_minimal_image = models.URLField(max_length=1000, blank=True, null=True)
+    home_category_printed_image = models.URLField(max_length=1000, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'General Settings'
+        verbose_name_plural = 'General Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        settings_obj, _ = cls.objects.get_or_create(pk=1)
+        return settings_obj
+
+    def __str__(self):
+        return 'General Settings'
+
+
 class PincodeLocationCache(models.Model):
     pincode = models.CharField(max_length=10, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=6)

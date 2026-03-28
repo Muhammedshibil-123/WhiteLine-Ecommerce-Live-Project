@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DeliverySettings, Order, OrderItem, PincodeLocationCache
+from .models import DeliverySettings, GeneralSettings, Order, OrderItem, PincodeLocationCache
 
 
 class OrderItemInline(admin.TabularInline):
@@ -19,6 +19,11 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(DeliverySettings)
 class DeliverySettingsAdmin(admin.ModelAdmin):
     list_display = ('warehouse_pincode', 'rate_per_km', 'updated_at')
+
+
+@admin.register(GeneralSettings)
+class GeneralSettingsAdmin(admin.ModelAdmin):
+    list_display = ('updated_at',)
 
 
 @admin.register(PincodeLocationCache)

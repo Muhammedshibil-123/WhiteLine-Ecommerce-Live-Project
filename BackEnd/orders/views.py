@@ -1,19 +1,21 @@
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import generics, status, views
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import AllowAny, BasePermission, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from products.models import Product, ProductSize
+from products.imgbb import ImgBBUploadError, upload_uploaded_file
 
-from .models import Cart, CartItem, DeliverySettings, Order, OrderAddress, OrderItem, Wishlist
+from .models import Cart, CartItem, DeliverySettings, GeneralSettings, Order, OrderAddress, OrderItem, Wishlist
 from .pricing import get_cart_item_pricing
 from .serializers import (
     AdminOrderSerializer,
     CartItemSerializer,
     CartSerializer,
     DeliverySettingsSerializer,
+    GeneralSettingsSerializer,
     OrderSerializer,
     WishlistSerializer,
 )
@@ -199,6 +201,44 @@ class DeliverySettingsView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class GeneralSettingsView(APIView):
+    image_fields = GeneralSettings.IMAGE_FIELDS
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated(), IsAdminRole()]
+
+    def get(self, request):
+        settings_obj = GeneralSettings.load()
+        return Response(GeneralSettingsSerializer(settings_obj).data)
+
+    def patch(self, request):
+        settings_obj = GeneralSettings.load()
+        remove_fields = request.data.getlist('remove_fields') if hasattr(request.data, 'getlist') else []
+
+        invalid_fields = [field for field in remove_fields if field not in self.image_fields]
+        if invalid_fields:
+            return Response(
+                {"error": f"Invalid image field: {', '.join(invalid_fields)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        for field_name in remove_fields:
+            setattr(settings_obj, field_name, '')
+
+        try:
+            for field_name in self.image_fields:
+                uploaded_file = request.FILES.get(field_name)
+                if uploaded_file:
+                    setattr(settings_obj, field_name, upload_uploaded_file(uploaded_file))
+        except ImgBBUploadError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        settings_obj.save()
+        return Response(GeneralSettingsSerializer(settings_obj).data)
 
 
 class DeliveryEstimateView(APIView):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, CartItem, Wishlist, Order, OrderItem, OrderAddress, DeliverySettings
+from .models import Cart, CartItem, Wishlist, Order, OrderItem, OrderAddress, DeliverySettings, GeneralSettings
 from products.models import Product, ProductSize
 from products.serializers import ProductSerializer
 from .pricing import calculate_cart_totals, get_cart_item_pricing
@@ -120,6 +120,13 @@ class DeliverySettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliverySettings
         fields = ['warehouse_pincode', 'rate_per_km', 'updated_at']
+        read_only_fields = ['updated_at']
+
+
+class GeneralSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GeneralSettings
+        fields = [*GeneralSettings.IMAGE_FIELDS, 'updated_at']
         read_only_fields = ['updated_at']
 
 class OrderItemSerializer(serializers.ModelSerializer):

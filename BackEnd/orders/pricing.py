@@ -3,7 +3,6 @@ from decimal import Decimal, ROUND_HALF_UP
 
 MONEY_STEP = Decimal('0.01')
 ORDER_DISCOUNT_RATE = Decimal('0.10')
-GST_RATE = Decimal('0.18')
 
 
 def money(value):
@@ -56,8 +55,7 @@ def calculate_cart_totals(cart_items):
 
     discount = money(subtotal * ORDER_DISCOUNT_RATE)
     discounted_subtotal = money(subtotal - discount)
-    gst = money(discounted_subtotal * GST_RATE)
-    grand_total = money(discounted_subtotal + gst)
+    grand_total = discounted_subtotal
 
     return {
         'original_subtotal': original_subtotal,
@@ -65,6 +63,5 @@ def calculate_cart_totals(cart_items):
         'bulk_savings': bulk_savings,
         'discount': discount,
         'discounted_subtotal': discounted_subtotal,
-        'gst': gst,
         'grand_total': grand_total,
     }
