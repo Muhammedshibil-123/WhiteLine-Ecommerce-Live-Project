@@ -1,0 +1,279 @@
+/* --- Page Layout --- */
+.my-orders-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.my-orders-container {
+  width: 100%;
+  max-width: 1000px;
+}
+
+.my-orders-container h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    text-align:  center;
+}
+
+/* --- Order Card --- */
+.track-order-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #eee;
+}
+
+.track-order-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.track-order-id {
+  font-weight: 700;
+  color: #333;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.track-order-date {
+  font-size: 13px;
+  color: #777;
+}
+
+.track-status-text {
+  font-weight: 600;
+  color: #28a745;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+/* --- Delivery Info --- */
+.track-delivery-info {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+  padding: 0 15px;
+}
+
+.track-delivery-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 15px;
+  color: #333;
+  font-weight: 600;
+}
+
+.track-delivery-info p {
+  margin: 2px 0;
+}
+
+/* --- Items List (Renamed to avoid conflict with .cartdiv) --- */
+.track-item-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.track-item-row:hover {
+  background-color: #fcfcfc;
+}
+
+.track-item-row img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  background: #fff;
+}
+
+.track-item-details {
+  flex: 1;
+}
+
+.track-item-details h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.track-item-details p {
+  font-size: 13px;
+  color: #666;
+  margin: 2px 0;
+}
+
+.track-item-total {
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+}
+
+/* --- Tracking Progress Bar (Horizontal Line) --- */
+.track-progress-wrapper {
+  margin-top: 40px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.track-progress-bar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* The Background Line (Gray) */
+.track-line-bg {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #e0e0e0;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* The Active Line (Green) */
+.track-line-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
+  background-color: #28a745;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Step Dots and Labels */
+.track-step {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px; /* Width of the dot area */
+}
+
+/* The Dot */
+.track-dot {
+  width: 16px;
+  height: 16px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.track-step.active .track-dot {
+  background-color: #28a745;
+  box-shadow: 0 0 0 1px #28a745;
+  transform: scale(1.2);
+}
+
+/* The Label */
+.track-step span {
+  position: absolute;
+  top: 25px;
+  width: 120px;
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.track-step.active span {
+  color: #333;
+  font-weight: 700;
+}
+
+.total-text{
+     font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    text-align:  end;
+    padding-top: 20px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .track-progress-wrapper {
+    overflow-x: auto;
+    padding-bottom: 30px; 
+  }
+  
+  .track-progress-bar {
+    min-width: 400px; /* Ensure bar doesn't squish on small screens */
+  }
+  
+  .track-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .track-item-row img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .track-item-total {
+    align-self: flex-end;
+  }
+}
+
+.payment-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  margin-right: 10px;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Paid Online */
+.payment-status-badge.paid {
+  background-color: #e6f7ec;
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+
+/* Cash on Delivery */
+.payment-status-badge.cod {
+  background-color: #fff4e5;
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
+/* Position badge above progress bar (Order Placed) */
+.track-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

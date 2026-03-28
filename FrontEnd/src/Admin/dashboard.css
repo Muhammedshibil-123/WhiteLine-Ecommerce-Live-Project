@@ -1,0 +1,333 @@
+/* --- Wrapper --- */
+/* Note: Margin is handled by .admin-content in sidebar.css now */
+.dashboard-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* --- Header --- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #111;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.dashboard-header p {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.date-badge {
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+/* --- Stats Grid --- */
+.stats-grids {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 25px;
+  margin-bottom: 20px;
+}
+
+.stat-cards {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.2s ease;
+}
+
+.stat-cards:hover {
+  transform: translateY(-5px);
+  border-color: #ddd;
+}
+
+.icon-box {
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.icon-box.purple { background: #eef2ff; color: #4338ca; }
+.icon-box.blue { background: #e0f2fe; color: #0284c7; }
+.icon-box.orange { background: #ffedd5; color: #c2410c; }
+.icon-box.green { background: #dcfce7; color: #15803d; }
+
+.stat-info h4 {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 5px 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-info h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+}
+
+/* --- Split Layout --- */
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 30px;
+}
+
+/* --- Common Section Styles --- */
+.recent-orders-section, 
+.top-products-section {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  border: 1px solid #f0f0f0;
+  height: fit-content;
+}
+
+.section-header {
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f5f5f5;
+  padding-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #111;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Table Styles --- */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  color: #999;
+  font-weight: 700;
+  padding: 15px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 20px 10px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #f9f9f9;
+  font-weight: 500;
+}
+
+.order-id {
+  font-family: monospace;
+  font-weight: 600;
+  color: #666;
+}
+
+.amount {
+  font-weight: 700;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap; /* Ensures text doesn't wrap awkwardly */
+}
+
+/* 1. Order Placed - Blue */
+.status-badge.order-placed { 
+  background: #f0f9ff; 
+  color: #0284c7; 
+}
+
+/* 2. Shipped - Orange */
+.status-badge.shipped { 
+  background: #fff7ed; 
+  color: #ea580c; 
+}
+
+/* 3. Out for Delivery - Purple (NEW) */
+.status-badge.out-for-delivery { 
+  background: #f3e8ff; 
+  color: #7e22ce; 
+}
+
+/* 4. Delivered - Green */
+.status-badge.delivered { 
+  background: #f0fdf4; 
+  color: #16a34a; 
+}
+
+/* 5. Cancelled/Failed - Red */
+.status-badge.cancelled, 
+.status-badge.failed { 
+  background: #fef2f2; 
+  color: #dc2626; 
+}
+
+/* 6. Pending - Grey (Fallback) */
+.status-badge.pending {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+/* --- Top Products List Styles --- */
+.top-product-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.2s;
+}
+
+.top-product-item:hover {
+  background-color: #fafafa;
+}
+
+.top-product-item:last-child {
+  border-bottom: none;
+}
+
+.product-rank {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e0e0e0;
+  min-width: 20px;
+}
+
+.top-product-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #eee;
+  background-color: #fff;
+}
+
+.product-desc {
+  flex-grow: 1;
+}
+
+.product-desc h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.product-desc p {
+  margin: 0;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.product-sales {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.product-sales span {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.product-sales strong {
+  font-size: 14px;
+  color: #111;
+  font-weight: 700;
+}
+
+.view-all-btn button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  background-color: #fff;
+  border: 1px solid #111;
+  color: #111;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.view-all-btn button:hover {
+  background-color: #111;
+  color: white;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1200px) {
+  .dashboard-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* For mobile, we generally hide sidebar, so remove margin */
+@media (max-width: 768px) {
+  .admin-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .main-sidebar {
+    display: none; /* Or use a hamburger menu logic */
+  }
+}

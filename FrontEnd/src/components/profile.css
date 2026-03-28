@@ -1,0 +1,422 @@
+/* --- Main Layout --- */
+.profile-page-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    padding: 60px 20px;
+    box-sizing: border-box;
+}
+
+.profile-header-section {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.profile-header-section h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111;
+    margin: 0 0 10px 0;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+.profile-header-section .underline {
+    width: 60px;
+    height: 4px;
+    background-color: #e63946;
+    margin: 0 auto;
+}
+
+/* --- Main Grid Layout (Sidebar + Content) --- */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Left Column: Profile Card --- */
+.profile-card {
+    background: #f9f9f9;
+    padding: 40px 30px;
+    border: 1px solid #eee;
+    text-align: center;
+    height: fit-content;
+    border-radius: 8px;
+}
+
+.avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+}
+
+.avatar-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.member-badge {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #111;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 15px 0 5px 0;
+    color: #111;
+    text-transform: capitalize;
+}
+
+.profile-email {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 30px 0;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #fff;
+    color: #d62828;
+    border: 1px solid #d62828;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 4px;
+}
+
+.logout-btn:hover {
+    background-color: #d62828;
+    color: #fff;
+}
+
+/* --- Right Column: Content --- */
+.profile-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}
+
+/* --- STATS ROW (The Black Boxes) --- */
+.stats-grid {
+    display: flex !important;           
+    flex-direction: row !important;     
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+
+.stat-card {
+    flex: 1;                 
+    background-color: #111 !important;  /* FORCED BLACK */
+    color: #fff !important;             /* FORCED WHITE TEXT */
+    padding: 25px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border-radius: 8px;
+    min-width: 0;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background-color: #000 !important;
+}
+
+.stat-card .icon {
+    font-size: 24px;
+    color: #e63946; /* Red Icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card .info h3 {
+    font-size: 22px;
+    margin: 0;
+    font-weight: 700;
+    color: #fff !important; /* Force White */
+}
+
+.stat-card .info p {
+    font-size: 12px;
+    margin: 0;
+    opacity: 0.8;
+    text-transform: uppercase;
+    color: #eee !important; /* Light Gray */
+    letter-spacing: 0.5px;
+}
+
+/* --- Personal Info Box --- */
+.info-box {
+    border: 1px solid #eee;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.box-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+    text-transform: uppercase;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #e63946;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.details-grid-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detail-item label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.detail-item span {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* --- Quick Actions (Bottom Links) --- */
+.quick-actions {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.action-link {
+    flex: 1;
+    padding: 18px;
+    background-color: #f8f9fa;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid #eee;
+    transition: all 0.2s;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-link:hover {
+    border-color: #111;
+    background-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* --- MODAL STYLES --- */
+.profile-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(3px);
+}
+
+.profile-modal-content {
+    background: #fff;
+    width: 500px;
+    max-width: 90%;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.profile-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.profile-modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #111;
+}
+
+.close-icon {
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.close-icon:hover {
+    color: #111;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #111;
+}
+
+.save-profile-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #111;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s;
+}
+
+.save-profile-btn:hover {
+    background-color: #e63946;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 900px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .profile-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Keep Flex but allow wrapping on small screens */
+    .stats-grid {
+        flex-wrap: wrap;
+    }
+    
+    .stat-card {
+        min-width: 140px; 
+    }
+    
+    .details-grid-view {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+}

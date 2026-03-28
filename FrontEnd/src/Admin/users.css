@@ -1,0 +1,201 @@
+.users-page-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-users-container {
+  background: #fff;
+  padding: 30px;
+  border: 1px solid #eee;
+  width: 95%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Top Header & Controls --- */
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.users-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.controls-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  width: 180px;
+  outline: none;
+  background-color: #f9f9f9;
+}
+
+.search-box input:focus {
+  border-color: #111;
+  background-color: #fff;
+}
+
+.filter-box select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  cursor: pointer;
+  background-color: #fff;
+  outline: none;
+  min-width: 130px;
+}
+
+/* --- STRICT GRID ALIGNMENT --- */
+/* This class is applied to both Header Row and Data Rows to force alignment */
+.users-grid-row {
+  display: grid;
+  /* Columns: ID | User | Email | Mobile | Status | Action */
+  grid-template-columns: 0.6fr 1.5fr 2.5fr 1.5fr 1fr 0.8fr;
+  gap: 15px;
+  align-items: center;
+  padding: 12px 15px;
+}
+
+.table-header {
+  background: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+  font-weight: 700;
+  font-size: 11px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.users-list-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-data-row {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+  font-size: 13px;
+  color: #333;
+}
+
+.user-data-row:hover {
+  background-color: #fafafa;
+}
+
+/* --- Column Text Handling --- */
+.u-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevents text from wrapping and breaking alignment */
+}
+
+.col-id {
+  font-weight: 600;
+  color: #888;
+  font-size: 12px;
+}
+
+.col-user strong {
+  color: #111;
+}
+
+.col-email {
+  color: #555;
+}
+
+/* --- Status Pills --- */
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  min-width: 60px;
+  text-align: center;
+}
+
+.status-pill.active {
+  background: #e6ffe6;
+  color: #008000;
+  border: 1px solid #ccffcc;
+}
+
+.status-pill.inactive {
+  background: #ffe6e6;
+  color: #cc0000;
+  border: 1px solid #ffcccc;
+}
+
+/* --- Toggle Button (Action Column) --- */
+.col-action {
+  display: flex;
+  justify-content: flex-start; /* Aligns button to the left of the column */
+}
+
+.toggle-btn {
+  width: 40px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+  padding: 2px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.toggle-btn.on {
+  background-color: #111;
+}
+
+.toggle-btn.off {
+  background-color: #ccc;
+}
+
+.toggle-circle {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn.on .toggle-circle {
+  transform: translateX(18px);
+}
+
+.toggle-btn.off .toggle-circle {
+  transform: translateX(0);
+}
+
+/* Mobile Scroll */
+@media (max-width: 900px) {
+  .main-users-container {
+    overflow-x: auto;
+  }
+  
+  .users-grid-row {
+    min-width: 800px; 
+  }
+}

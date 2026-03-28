@@ -1,0 +1,8 @@
+*{
+  font-family: 'Poppins', sans-serif;
+}
+@media (max-width: 768px) {
+  .Toastify__toast-container {
+    display: none !important;
+  }
+}

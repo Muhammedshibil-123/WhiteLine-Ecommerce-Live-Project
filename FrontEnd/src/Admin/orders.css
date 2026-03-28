@@ -1,0 +1,250 @@
+/* --- Wrapper --- */
+.orders-page-wrapper {
+  width: 100%; /* Full width of the content area */
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* --- Header --- */
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+}
+
+/* ... (kept your existing header & stat styles unchanged) ... */
+
+.order-stats {
+  background: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  color: #555;
+}
+
+.order-stats strong {
+  color: #e63946;
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+/* --- Table Container --- */
+.orders-table-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid #eee;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* --- IMPORTANT: FIXED LAYOUT + COLUMN WRAPPING --- */
+/* Use a fixed table layout so column widths are respected (prevents a single long cell from expanding the whole table) */
+.admin-orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* <-- added */
+}
+
+/* If you want to control widths from CSS instead of inline <th>, uncomment and adjust these:
+.admin-orders-table th.id-col { width: 60px; }
+.admin-orders-table th.customer-col { width: 220px; }
+*/
+
+/* --- Header Cells --- */
+.admin-orders-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  padding: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  vertical-align: top;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* keep header text in one line */
+}
+
+/* --- Body Cells --- */
+.admin-orders-table td {
+  padding: 15px;
+  vertical-align: top;
+  border-bottom: 1px solid #f9f9f9;
+  font-size: 14px;
+  color: #333;
+  /* ensure cell contents wrap when necessary */
+  overflow-wrap: anywhere; /* modern browsers */
+  word-break: break-word;   /* break very long words / strings */
+  white-space: normal;      /* allow normal wrapping */
+}
+
+.admin-orders-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-orders-table tr:hover {
+  background-color: #fafafa;
+}
+
+/* --- Specific Columns --- */
+.id-col {
+  font-family: monospace;
+  font-weight: 600;
+  color: #555;
+  padding-top: 25px !important;
+  width: 60px; /* help keep ID column small */
+  max-width: 60px;
+}
+
+.customer-col {
+  padding-top: 25px !important;
+  width: 220px;       /* fixed width for delivery details column */
+  max-width: 220px;   /* do not allow growing beyond this */
+  min-width: 160px;
+  box-sizing: border-box;
+}
+
+/* Ensure inner delivery elements wrap */
+.customer-col .customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: visible;
+}
+
+.customer-col .customer-info .name {
+  font-weight: 600;
+  color: #111;
+  display: block;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.customer-col .customer-info .sub-text,
+.customer-col p {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+  line-height: 1.25;
+  /* ensure long address lines wrap to next line */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* --- Items column --- */
+.items-col {
+  /* Let items column take remaining width; because table-layout: fixed,
+     this column behaves flexibly and won't force other columns to expand. */
+  width: auto;
+}
+
+/* --- Price & Date --- */
+.price-col {
+  font-weight: 700;
+  color: #111;
+  padding-top: 25px !important;
+  width: 110px;
+  max-width: 110px;
+  text-align: left;
+}
+
+.date-col {
+  font-size: 13px;
+  color: #666;
+  padding-top: 25px !important;
+  width: 130px;
+  max-width: 130px;
+}
+
+/* --- Item List Styles --- */
+.items-list-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-row-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-row-detail img {
+  width: 45px;
+  height: 45px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #eee;
+  background-color: #fff;
+}
+
+.item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.3;
+}
+
+.item-qty {
+  font-size: 11px;
+  color: #777;
+  font-weight: 500;
+}
+
+/* --- Status Badges (Pills) --- */
+.status-pill {
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  min-width: 110px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.status-pill.order-placed { background-color: #e0f2fe; color: #0284c7; }
+.status-pill.shipped { background-color: #fff7ed; color: #ea580c; }
+.status-pill.out-for-delivery { background-color: #f3e8ff; color: #7e22ce; } 
+.status-pill.delivered { background-color: #dcfce7; color: #15803d; }
+
+/* --- Status Select Dropdown --- */
+.status-select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 12px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  margin-top: 8px;
+}
+
+.status-select:hover {
+  border-color: #111;
+}
+
+.status-select:focus {
+  border-color: #e63946;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1100px) {
+  .orders-table-container {
+    overflow-x: auto;
+  }
+}

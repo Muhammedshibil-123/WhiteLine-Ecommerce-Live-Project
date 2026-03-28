@@ -1,0 +1,194 @@
+/* --- Table Grid Layout --- */
+.table-header-row, .product-row {
+  display: grid;
+  grid-template-columns: 0.5fr 0.8fr 2fr 0.8fr 1.2fr 0.8fr 1.5fr; 
+  align-items: center;
+  padding: 15px 20px;
+  gap: 15px;
+}
+
+.table-header-row span {
+  display: flex;
+  align-items: center;
+}
+
+/* --- Stock Display (Table Column) --- */
+.col-stock {
+  width: 100%;
+}
+
+.stock-display-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Display 2 per line in table (S, M / L, XL / XXL) */
+  gap: 5px;
+  width: 100%;
+  max-width: 120px;
+}
+
+.stock-item {
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #f4f4f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: center;
+  white-space: nowrap;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.stock-item.zero {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border-color: #ffcdd2;
+  opacity: 0.7;
+}
+
+.no-stock {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+}
+
+/* --- Action Buttons --- */
+.col-action {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.action-btn {
+  border: none;
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.action-btn.stock {
+  background-color: #fff;
+  border: 1px solid #007bff;
+  color: #007bff;
+}
+
+.action-btn.stock:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.action-btn.edit {
+  background-color: #fff;
+  border: 1px solid #111;
+  color: #111;
+}
+
+.action-btn.edit:hover {
+  background-color: #111;
+  color: white;
+}
+
+.action-btn.delete {
+  background-color: #fff;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.action-btn.delete:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+
+/* --- Page Wrapper --- */
+.products-page-wrapper { width: 100%; box-sizing: border-box; }
+.main-products-container {
+  background: #fff;
+  padding: 30px;
+  border: 1px solid #eee;
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Header --- */
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.products-header h1 { font-size: 24px; font-weight: 800; color: #111; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; }
+
+/* --- Controls --- */
+.controls-container { display: flex; gap: 15px; align-items: center; }
+.search-box input { padding: 10px 15px; border: 1px solid #ddd; font-size: 14px; width: 220px; outline: none; transition: all 0.3s ease; background-color: #f9f9f9; }
+.search-box input:focus { border-color: #111; background-color: #fff; }
+.filter-box select { padding: 10px 15px; border: 1px solid #ddd; font-size: 14px; cursor: pointer; background-color: #fff; outline: none; min-width: 150px; }
+.filter-box select:focus { border-color: #111; }
+.add-btn { background-color: #111; color: #fff; border: none; padding: 10px 20px; font-weight: 700; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
+.add-btn:hover { background-color: #e63946; }
+
+/* --- Table Rows --- */
+.table-header-row { background: #f4f4f4; font-weight: 700; font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #ddd; }
+.products-list { display: flex; flex-direction: column; }
+.product-row { border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+.product-row:hover { background-color: #fafafa; }
+.col-id { font-weight: 600; color: #888; font-size: 13px; }
+.col-img img { width: 50px; height: 60px; object-fit: cover; border: 1px solid #eee; }
+.col-title strong { display: block; font-size: 14px; color: #111; margin-bottom: 2px; }
+.col-title p { font-size: 12px; color: #777; margin: 0; text-transform: uppercase; }
+.col-price { font-weight: 700; color: #111; font-size: 14px; }
+.col-status { display: flex; }
+
+/* --- Toggle --- */
+.toggle-btn { width: 44px; height: 24px; display: flex; align-items: center; border-radius: 20px; padding: 3px; transition: background-color 0.3s ease; cursor: pointer; border: none; }
+.toggle-btn.on { background-color: #111; }
+.toggle-btn.off { background-color: #ccc; }
+.toggle-circle { width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 0.3s ease; }
+.toggle-btn.on .toggle-circle { transform: translateX(20px); }
+.toggle-btn.off .toggle-circle { transform: translateX(0); }
+
+/* --- MODAL STYLES --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1100; backdrop-filter: blur(3px); }
+.modal-content { background: #fff; width: 600px; max-width: 90%; max-height: 90vh; overflow-y: auto; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
+.modal-content.small-modal { width: 400px; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+.modal-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: #111; text-transform: uppercase; }
+.modal-header img { width: 20px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+.modal-header img:hover { opacity: 1; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-group.full-width { grid-column: span 2; }
+.input-group label { font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; }
+.input-group input, .input-group textarea { padding: 12px; border: 1px solid #ddd; background: #f9f9f9; font-size: 14px; outline: none; transition: border 0.2s; }
+.input-group input:focus, .input-group textarea:focus { border-color: #111; background: #fff; }
+.save-btn { width: 100%; background-color: #111; color: #fff; padding: 15px; border: none; font-weight: 700; font-size: 14px; margin-top: 25px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+.save-btn:hover { background-color: #e63946; }
+
+/* Stock Modal Specifics */
+.stock-info-header { background: #f9f9f9; padding: 10px; margin-bottom: 20px; border-radius: 4px; border-left: 3px solid #111; }
+.stock-info-header h3 { margin: 0 0 5px 0; font-size: 16px; }
+.stock-info-header p { margin: 0; font-size: 12px; color: #666; }
+
+/* UPDATED: Vertical Stack for Stock Inputs */
+.stock-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Vertical Stack */
+    gap: 15px;
+}
+
+@media (max-width: 900px) {
+  .main-products-container { overflow-x: auto; }
+  .table-header-row, .product-row { min-width: 900px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .input-group.full-width { grid-column: span 1; }
+}
